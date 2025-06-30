@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tata Communications | Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #007CC3, #005A99);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      text-align: center;
+    }
+
+    .logo-wrapper {
+      background-color: white;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: inline-block;
+      border-radius: 8px;
+    }
+
+    .logo-wrapper img {
+      max-width: 150px;
+      height: auto;
+      display: block;
+    }
+
+    .login-container h2 {
+      margin-bottom: 10px;
+      color: #007CC3;
+    }
+
+    .login-container p {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 18px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .login-container input:focus {
+      border-color: #007CC3;
+      outline: none;
+      box-shadow: 0 0 4px rgba(0, 124, 195, 0.3);
+    }
+
+    .login-container input:hover {
+      border-color: #bbb;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      background: #007CC3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, border-radius 0.3s;
+    }
+
+    .login-container button:hover {
+      background: #005A99;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      .login-container {
+        width: 90%;
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-wrapper">
+      <img src="assets/logo2.png" alt="Tata Logo" />
+    </div>
+    <h2>Admin Login</h2>
+    <p>Please log in to manage pricing details securely.</p>
+
+    <input type="email" id="email" placeholder="Enter your email" />
+    <input type="password" id="password" placeholder="Enter your password" />
+    <button onclick="login()">Login</button>
+
+    <div class="footer">© 2025 Tata Communications Ltd.</div>
+  </div>
+
+  
+    <script>
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+      alert(result.message);
+    } catch (err) {
+      alert("Error connecting to server");
+      console.error(err);
+    }
+  }
+</script>
+
+   
+</body>
+</html>

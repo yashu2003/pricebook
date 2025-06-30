@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | Tata Communications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #f5f9fc;
+    }
+
+    header {
+      background: linear-gradient(to right, #007CC3, #005A99);
+      padding: 20px 30px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+
+    .dashboard {
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .search-container input {
+      padding: 10px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #007CC3;
+      color: white;
+      font-weight: 500;
+    }
+
+    tr:hover {
+      background-color: #f1f9ff;
+    }
+
+    .edit-btn {
+      background-color: #005A99;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .edit-btn:hover {
+      background-color: #004a80;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #888;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Price Dashboard - Tata Communications</h1>
+    <div>Welcome, <strong>Admin</strong></div>
+  </header>
+
+  <div class="dashboard">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search items..." onkeyup="searchTable()" />
+    </div>
+
+    <table id="priceTable">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Category</th>
+          <th>Price (INR)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Internet 100Mbps</td>
+          <td>Broadband</td>
+          <td>1200</td>
+          <td><button class="edit-btn">Edit</button></td>
+        </tr>
+        <tr>
+          <td>VoIP Line</td>
+          <td>Telephony</td>
+          <td>700</td>
+          <td><button class="edit-btn">Edit</button></td>
+        </tr>
+        <tr>
+          <td>Cloud Hosting</td>
+          <td>Hosting</td>
+          <td>3500</td>
+          <td><button class="edit-btn">Edit</button></td>
+        </tr>
+        <tr>
+          <td>Managed VPN</td>
+          <td>Networking</td>
+          <td>2400</td>
+          <td><button class="edit-btn">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">© 2025 Tata Communications Ltd.</div>
+  </div>
+
+  <script>
+    function searchTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#priceTable tbody tr");
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+      });
+    }
+  </script>
+
+</body>
+</html>

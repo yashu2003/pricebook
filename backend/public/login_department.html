@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Team Login | Tata Communications</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('assets/network.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 3rem 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 440px;
+      color: white;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .floating-label {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .floating-label input,
+    .floating-label select {
+      width: 100%;
+      padding: 1rem 0.75rem 0.75rem;
+      border: none;
+      border-radius: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.85);
+      font-size: 1rem;
+      color: #111;
+      transition: all 0.2s;
+    }
+
+    .floating-label label {
+      position: absolute;
+      left: 12px;
+      top: 1rem;
+      color: #666;
+      font-size: 0.95rem;
+      pointer-events: none;
+      transition: all 0.2s ease-out;
+      background-color: transparent;
+    }
+
+    .floating-label input:focus + label,
+    .floating-label input:not(:placeholder-shown) + label,
+    .floating-label select:focus + label,
+    .floating-label select:not([value=""]) + label {
+      top: -10px;
+      left: 10px;
+      font-size: 0.75rem;
+      color: #007CC3;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+
+    .floating-label input:focus,
+    .floating-label select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 124, 195, 0.3);
+    }
+
+    .login-button {
+      background: linear-gradient(to right, #007CC3, #005A99);
+      color: white;
+      font-weight: 700;
+      padding: 0.85rem;
+      border-radius: 0.75rem;
+      border: none;
+      width: 100%;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .login-button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 18px rgba(0, 124, 195, 0.3);
+    }
+
+    .footer {
+      font-size: 0.75rem;
+      margin-top: 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    @media (max-width: 500px) {
+      .glass {
+        padding: 2rem 1.5rem;
+        border-radius: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass">
+    <div class="text-center mb-6">
+      <img src="assets/logo2.png" alt="Tata Communications" class="mx-auto h-14 mb-5" />
+      <h2 class="text-2xl font-bold text-white">Team Login</h2>
+      <p class="text-sm text-white/80 mt-1">Secure access for internal teams</p>
+    </div>
+
+    <div class="floating-label">
+      <select id="department" required>
+        <option value="" disabled selected hidden></option>
+        <option value="HR">Human Resources</option>
+        <option value="Sales">Sales</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Operations">Operations</option>
+      </select>
+      <label for="department">Select your team</label>
+    </div>
+
+    <div class="floating-label">
+      <input id="accessCode" type="password" placeholder=" " required />
+      <label for="accessCode">Access Code</label>
+    </div>
+
+    <button onclick="login()" class="login-button">Login</button>
+
+    <p class="text-center footer">© 2025 Tata Communications Ltd.</p>
+  </div>
+
+  <script>
+    // Auto-select team from homepage query
+    const urlParams = new URLSearchParams(window.location.search);
+    const team = urlParams.get('department');
+    if (team) {
+      document.getElementById("department").value = team;
+    }
+      // 🔑 Listen for Enter key to submit the form
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent default form submission behavior
+      login(); // Call your login function
+    }
+  });
+
+    async function login() {
+      const department = document.getElementById("department").value;
+      const accessCode = document.getElementById("accessCode").value;
+
+      if (!department || !accessCode) {
+        Toastify({
+          text: "Please fill all fields.",
+          duration: 3000,
+          gravity: "top",
+          position: "center",
+         
+          backgroundColor: "#ffc107"
+        }).showToast();
+        return;
+      }
+
+      const res = await fetch('/api/department-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ department, accessCode })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        Toastify({
+          text: "Login successful!",
+          duration: 2000,
+          gravity: "top",
+          position: "center",
+          
+          backgroundColor: "#28a745"
+        }).showToast();
+
+        setTimeout(() => {
+          window.location.href = "/department_dashboard.html";
+        }, 1500);
+      } else {
+        Toastify({
+          text: "Invalid access code!",
+          duration: 3000,
+          gravity: "top",
+          position: "center",
+          backgroundColor: "#dc3545"
+        }).showToast();
+      }
+    }
+  </script>
+
+</body>
+</html>
