@@ -1,17 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Department Dashboard</title>
-  <link href="https://cdn.tailwindcss.com" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>Marketing Department Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f9f9f9;
+      --text: #1a1a1a;
+      --card: #fff;
+      --highlight: #f4f4f4;
+      --border: #dcdcdc;
+      --primary: #007cc3;
+      --accent: #facc15;
+      --export: #16a34a;
+      --dark-bg: #1e2530;
+      --dark-text: #e4e6eb;
+      --dark-card: #2a3242;
+      --dark-border: #3c4453;
+      --highlight-dark: #353f52;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode {
+      --bg: var(--dark-bg);
+      --text: var(--dark-text);
+      --card: var(--dark-card);
+      --border: var(--dark-border);
+      --highlight: var(--highlight-dark);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 30px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .theme-toggle {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-item label {
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .filter-item select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--highlight);
+      font-size: 14px;
+      appearance: none;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .btn-export, .btn-product {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-export {
+      background: var(--export);
+      color: white;
+    }
+
+    .btn-export:hover {
+      background: #15803d;
+    }
+
+    .btn-product {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-product:hover {
+      background: #005a99;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--highlight);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="text-center">
-    <h1 class="text-3xl font-bold text-blue-700">Welcome to the Department Dashboard</h1>
-    <p class="mt-4 text-gray-700">This is a placeholder page for department users.</p>
+<body>
+
+<header>
+  <h1>Marketing Department Dashboard</h1>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon"></i> Toggle Theme
+  </button>
+
+  
+</header>
+
+<div class="container">
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-item">
+      <label>1 - SERVICE</label>
+      <select><option>GlobalRapide Cloud Voice (GSIP)</option></select>
+    </div>
+    <div class="filter-item">
+      <label>2 - SERVICE TYPE</label>
+      <select><option>Global Inbound Off-net Voice Service</option></select>
+    </div>
+    <div class="filter-item">
+      <label>3 - NUMBER TYPE</label>
+      <select><option>International Toll Free Service</option></select>
+    </div>
+    <div class="filter-item">
+      <label>4 - ACCESS TYPE</label>
+      <select><option>Dedicated</option></select>
+    </div>
+    <div class="filter-item">
+      <label>5 - CURRENCY</label>
+      <select><option>USD</option></select>
+    </div>
+    <div class="filter-item">
+      <label>6 - Rate Deck</label>
+      <select style="background: var(--accent);"><option>CDA Floor</option></select>
+    </div>
   </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-product"><i class="fas fa-box"></i> Choose Product</button>
+    <button class="btn-export" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Export</button>
+  </div>
+
+  <!-- Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Currency</th>
+        <th>LNS-EV Code</th>
+        <th>Origin Country</th>
+        <th>Termination Country 1</th>
+        <th>Termination Country 2</th>
+        <th>Rate</th>
+        <th>Implementation Fee / NRC</th>
+        <th>Monthly Recurring Fee / MRC</th>
+        <th>Comments</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>USD</td>
+        <td>LN001</td>
+        <td>India</td>
+        <td>USA</td>
+        <td>Canada</td>
+        <td>$0.15</td>
+        <td>$100</td>
+        <td>$20</td>
+        <td>Standard Plan</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
 <script>
-    
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.querySelector('.theme-toggle i');
+    icon.classList.toggle('fa-moon');
+    icon.classList.toggle('fa-sun');
+  }
+
+
+  async function logout() {
+    try {
+      const res = await fetch('/api/logout');
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = '/admin'; // redirect to login page
+      } else {
+        alert('Logout failed!');
+      }
+    } catch (err) {
+      alert('Logout request failed.');
+      console.error(err);
+    }
+  }
+  
+  function exportExcel() {
+    alert("Export logic goes here");
+    // Integrate export logic later
+  }
 </script>
+
 </body>
 </html>

@@ -2,161 +2,545 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard | Tata Communications</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- SheetJS Library for Excel Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
+    :root {
+      --bg: #f9f9f9;
+      --text: #1a1a1a;
+      --card: #fff;
+      --highlight: #f4f4f4;
+      --border: #dcdcdc;
+      --primary: #007cc3;
+      --accent: #facc15;
+      --export: #16a34a;
+      --dark-bg: #1e2530;
+      --dark-text: #f3f4f6;
+      --dark-card: #2a3242;
+      --dark-highlight: #353f52;
+      --dark-border: #3c4453;
+    }
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Roboto', sans-serif;
-      background: #f5f9fc;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.3s ease;
     }
-
+    .dark-mode {
+      --bg: var(--dark-bg);
+      --text: var(--dark-text);
+      --card: var(--dark-card);
+      --highlight: var(--dark-highlight);
+      --border: var(--dark-border);
+    }
     header {
-      background: linear-gradient(to right, #007CC3, #005A99);
-      padding: 20px 30px;
-      color: white;
+      background: var(--card);
+      padding: 15px 30px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: 1px;
+    .logo {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary);
     }
-
-    .dashboard {
-      padding: 30px;
-      max-width: 1000px;
-      margin: auto;
-    }
-
-    .search-container {
-      margin-bottom: 20px;
+    .header-actions {
       display: flex;
-      justify-content: flex-end;
+      gap: 20px;
+      align-items: center;
     }
-
-    .search-container input {
-      padding: 10px;
-      width: 250px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    .header-actions button {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .header-actions button:hover {
+      background: var(--highlight);
+      color: var(--primary);
+    }
+    .theme-toggle i, .logout-btn i {
+      font-size: 20px;
+    }
+    main {
+      padding: 30px;
+    }
+    h1 {
+      color: var(--primary);
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+    .controls {
+      background: var(--card);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-end;
+    }
+    .filter {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1 1 200px;
+    }
+    .filter label {
+      font-weight: 600;
+      color: var(--text);
       font-size: 14px;
     }
-
+    .filter input, .filter select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .filter input:focus, .filter select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 124, 195, 0.2);
+    }
+    .actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background-color 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .btn-export {
+      background-color: var(--export);
+      color: white;
+    }
+    .btn-export:hover {
+      background-color: #118c3d;
+      transform: translateY(-2px);
+    }
+    .table-container {
+      margin-top: 20px;
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      overflow-x: auto;
+    }
     table {
       width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      border-radius: 8px;
-      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
     }
-
     th, td {
-      padding: 14px 16px;
       text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-
-    th {
-      background-color: #007CC3;
-      color: white;
-      font-weight: 500;
-    }
-
-    tr:hover {
-      background-color: #f1f9ff;
-    }
-
-    .edit-btn {
-      background-color: #005A99;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .edit-btn:hover {
-      background-color: #004a80;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      color: #888;
+      padding: 6px 8px;
       font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      max-width: 250px;
+      min-width: 80px;
+    }
+    th {
+      background: var(--highlight);
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    td:last-child, th:last-child {
+      border-right: none;
+    }
+    .dark-mode table {
+      border-color: var(--dark-border);
+    }
+    .dark-mode th {
+      background: var(--dark-highlight);
+      border-color: var(--dark-border);
+    }
+    .dark-mode td {
+      border-color: var(--dark-border);
+    }
+    .table-row:hover {
+      background-color: var(--highlight);
+    }
+    .dark-mode .table-row:hover {
+        background-color: var(--dark-highlight);
+    }
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 0 4px;
+        color: var(--primary);
+        transition: color 0.2s;
+    }
+    .action-btn:hover {
+        color: var(--accent);
+    }
+    .delete-btn {
+        color: #dc3545;
+    }
+    .delete-btn:hover {
+        color: #c82333;
+    }
+    .dark-mode .action-btn {
+        color: #8bbaf7;
+    }
+    .dark-mode .action-btn:hover {
+        color: var(--accent);
+    }
+    .dark-mode .delete-btn {
+        color: #ef5350;
+    }
+    .dark-mode .delete-btn:hover {
+        color: #d32f2f;
+    }
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .filters, .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter, .btn {
+        width: 100%;
+      }
+      th, td {
+        max-width: none; 
+      }
     }
   </style>
 </head>
 <body>
-
   <header>
-    <h1>Price Dashboard - Tata Communications</h1>
-    <div>Welcome, <strong>Admin</strong></div>
+    <div class="logo">PriceBook Admin</div>
+    <div class="header-actions">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i> Theme
+      </button>
+      <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
   </header>
 
-  <div class="dashboard">
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Search items..." onkeyup="searchTable()" />
+  <main>
+    <h1 id="dashboardTitle">Admin Dashboard</h1>
+    <div class="controls">
+      <div class="filters">
+        <div class="filter">
+          <label>Filter by Country</label>
+          <input type="text" placeholder="e.g., India" id="filterCountry">
+        </div>
+        <div class="filter">
+          <label>Filter by Destination</label>
+          <input type="text" placeholder="e.g., Mumbai" id="filterDestination">
+        </div>
+        </div>
+
+      <div class="actions">
+        <div class="filter">
+          <label for="productSelect">Select Product</label>
+            <select id="productSelect" onchange="productSelected()">
+                <option value="">Loading products...</option>
+            </select>
+        </div>
+        <!-- UPDATED: Added onclick event to the export button -->
+        <button class="btn btn-export" onclick="exportToExcel()">
+          <i class="fas fa-file-excel"></i> Export
+        </button>
+        <button class="btn btn-primary" onclick="alert('Add New Rate functionality coming soon!')">
+            <i class="fas fa-plus"></i> Add New Rate
+        </button>
+      </div>
     </div>
 
-    <table id="priceTable">
-      <thead>
-        <tr>
-          <th>Service</th>
-          <th>Category</th>
-          <th>Price (INR)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Internet 100Mbps</td>
-          <td>Broadband</td>
-          <td>1200</td>
-          <td><button class="edit-btn">Edit</button></td>
-        </tr>
-        <tr>
-          <td>VoIP Line</td>
-          <td>Telephony</td>
-          <td>700</td>
-          <td><button class="edit-btn">Edit</button></td>
-        </tr>
-        <tr>
-          <td>Cloud Hosting</td>
-          <td>Hosting</td>
-          <td>3500</td>
-          <td><button class="edit-btn">Edit</button></td>
-        </tr>
-        <tr>
-          <td>Managed VPN</td>
-          <td>Networking</td>
-          <td>2400</td>
-          <td><button class="edit-btn">Edit</button></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead id="ratesTableHeader">
+        </thead>
+        <tbody id="ratesTableBody">
+          <tr><td colspan="100%" style="text-align: center;">Please select a product to view data.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
 
-    <div class="footer">© 2025 Tata Communications Ltd.</div>
-  </div>
-
+  <script src="js/dashboardConfig.js"></script>
   <script>
-    function searchTable() {
-      const input = document.getElementById("searchInput").value.toLowerCase();
-      const rows = document.querySelectorAll("#priceTable tbody tr");
+    // --- STATE VARIABLES ---
+    let currentLoadedTableName = '';
+    let currentProcessedData = []; // Store the fully processed data for export
 
-      rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(input) ? "" : "none";
+    // --- CORE FUNCTIONS ---
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      const icon = document.querySelector('.theme-toggle i');
+      if (document.body.classList.contains('dark-mode')) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      }
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.classList.remove('fa-moon');
+                toggleIcon.classList.add('fa-sun');
+            }
+        }
+        checkAuth();
+        loadProducts();
+    });
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/check-session');
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = '/admin';
+        }
+      } catch (err) {
+        console.error("Auth check failed", err);
+        window.location.href = '/admin';
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/logout');
+      } catch (err) {
+        console.error("Server error during logout.", err);
+      }
+      window.location.href = '/admin';
+    }
+
+    async function loadProducts() {
+        const productSelect = document.getElementById('productSelect');
+        try {
+            const response = await fetch('/api/products');
+            const result = await response.json();
+
+            if (result.success && result.data.length > 0) {
+                productSelect.innerHTML = '<option value="">-- Select a Product --</option>';
+                result.data.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.product_id;
+                    option.textContent = product.product_name;
+                    productSelect.appendChild(option);
+                });
+            } else {
+                productSelect.innerHTML = '<option value="">No products found</option>';
+            }
+        } catch (error) {
+            productSelect.innerHTML = '<option value="">Error loading products</option>';
+        }
+    }
+
+    async function productSelected() {
+        const productSelect = document.getElementById('productSelect');
+        const selectedProductId = productSelect.value;
+        const selectedProductName = productSelect.options[productSelect.selectedIndex].text;
+        
+        document.getElementById('dashboardTitle').textContent = selectedProductName ? `${selectedProductName} Dashboard` : 'Admin Dashboard';
+
+        if (selectedProductId) {
+            await loadProductData(selectedProductId);
+        } else {
+            document.getElementById('ratesTableHeader').innerHTML = '';
+            document.getElementById('ratesTableBody').innerHTML = '<tr><td colspan="100%" style="text-align: center;">Please select a product to view data.</td></tr>';
+            currentProcessedData = []; // Clear data if no product is selected
+        }
+    }
+
+    async function loadProductData(productId) {
+        const tableHeader = document.getElementById('ratesTableHeader');
+        const tableBody = document.getElementById('ratesTableBody');
+
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '<tr><td colspan="100%" style="text-align: center;">Loading data...</td></tr>';
+        currentProcessedData = []; // Clear previous data
+
+        try {
+            const response = await fetch(`/api/product-data/${productId}`);
+            const result = await response.json();
+
+            if (result.success && result.data.length > 0) {
+                currentLoadedTableName = result.tableName;
+                
+                // Process data to include derived columns
+                const derivedColsForTable = DERIVED_COLUMN_CONFIG[currentLoadedTableName] || [];
+                currentProcessedData = result.data.map(row => {
+                    const newRow = { ...row };
+                    derivedColsForTable.forEach(derivedCol => {
+                        newRow[derivedCol.name] = derivedCol.formula(row);
+                    });
+                    return newRow;
+                });
+
+                renderTable(currentProcessedData);
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="100%" style="text-align: center;">${result.message || 'No data found for this product.'}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+            tableBody.innerHTML = '<tr><td colspan="100%" style="text-align: center; color: red;">Network error. Please check server.</td></tr>';
+        }
+    }
+
+    function renderTable(data) {
+        const tableHeader = document.getElementById('ratesTableHeader');
+        const tableBody = document.getElementById('ratesTableBody');
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        const columnsToDisplay = COLUMN_MAPPINGS[currentLoadedTableName] ? Object.keys(COLUMN_MAPPINGS[currentLoadedTableName]) : Object.keys(data[0] || {});
+        
+        const headerRow = document.createElement('tr');
+        columnsToDisplay.forEach(colKey => {
+            const th = document.createElement('th');
+            th.textContent = COLUMN_MAPPINGS[currentLoadedTableName]?.[colKey] || colKey.replace(/_/g, ' ');
+            headerRow.appendChild(th);
+        });
+        const actionsTh = document.createElement('th');
+        actionsTh.textContent = 'Actions';
+        headerRow.appendChild(actionsTh);
+        tableHeader.appendChild(headerRow);
+
+        data.forEach(rowObject => {
+            const row = document.createElement('tr');
+            row.classList.add('table-row');
+            columnsToDisplay.forEach(colKey => {
+                const td = document.createElement('td');
+                let cellValue = rowObject[colKey];
+                
+                const derivedColConfig = (DERIVED_COLUMN_CONFIG[currentLoadedTableName] || []).find(d => d.name === colKey);
+                if (derivedColConfig && derivedColConfig.format) {
+                    cellValue = derivedColConfig.format(cellValue);
+                } else if (cellValue === null || cellValue === undefined) {
+                    cellValue = '';
+                }
+                td.textContent = cellValue;
+                row.appendChild(td);
+            });
+            
+            const actionsTd = document.createElement('td');
+            const rowId = rowObject[Object.keys(rowObject)[0]]; 
+            actionsTd.innerHTML = `
+                <button class="action-btn edit-btn" onclick="alert('Edit row ID: ${rowId} from ${currentLoadedTableName}')"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete-btn" onclick="alert('Delete row ID: ${rowId} from ${currentLoadedTableName}')"><i class="fas fa-trash-alt"></i></button>
+            `;
+            row.appendChild(actionsTd);
+            tableBody.appendChild(row);
+        });
+    }
+
+    // --- NEW EXPORT FUNCTION ---
+    function exportToExcel() {
+      // 1. Check if there is data to export
+      if (currentProcessedData.length === 0) {
+        alert("No data available to export. Please select a product first.");
+        return;
+      }
+
+      // 2. Get the headers for the current table
+      const columnsConfig = COLUMN_MAPPINGS[currentLoadedTableName];
+      if (!columnsConfig) {
+        alert("Configuration for this table is missing.");
+        return;
+      }
+      
+      const headers = Object.values(columnsConfig);
+      const columnKeys = Object.keys(columnsConfig);
+
+      // 3. Map the data to an array of arrays, matching the header order
+      const dataToExport = currentProcessedData.map(row => {
+        return columnKeys.map(key => {
+          // Apply the same formatting as the table for consistency
+          const derivedColConfig = (DERIVED_COLUMN_CONFIG[currentLoadedTableName] || []).find(d => d.name === key);
+          if (derivedColConfig && derivedColConfig.format) {
+              return derivedColConfig.format(row[key]);
+          }
+          return row[key] === null || row[key] === undefined ? '' : row[key];
+        });
       });
+
+      // 4. Create a new workbook and a worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...dataToExport]);
+
+      // Optional: Auto-fit columns for better readability
+      const columnWidths = headers.map((header, i) => {
+          const maxLength = Math.max(
+              header.length, 
+              ...dataToExport.map(row => String(row[i] || '').length)
+          );
+          return { wch: maxLength + 2 }; // +2 for a little extra padding
+      });
+      worksheet['!cols'] = columnWidths;
+
+      // 5. Add the worksheet to the workbook
+      const selectedProductName = document.getElementById('productSelect').options[document.getElementById('productSelect').selectedIndex].text;
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rates");
+
+      // 6. Generate the Excel file and trigger a download
+      const fileName = `${selectedProductName.replace(/ /g, '_')}_Rates.xlsx`;
+      XLSX.writeFile(workbook, fileName);
     }
   </script>
-
 </body>
 </html>

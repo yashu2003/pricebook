@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8" />
   <title>Tata Communications | Admin Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
   <style>
     * {
@@ -118,7 +121,14 @@
     <p>Please log in to manage pricing details securely.</p>
 
     <input type="email" id="email" placeholder="Enter your email" />
-    <input type="password" id="password" placeholder="Enter your password" />
+    <div style="position: relative;">
+  <input type="password" id="password" placeholder="Enter your password" style="padding-right: 40px;" />
+  <span onclick="togglePassword()" 
+        style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+    <i id="eyeIcon" class="fa-solid fa-eye"></i>
+  </span>
+</div>
+
     <button onclick="login()">Login</button>
 
     <div class="footer">© 2025 Tata Communications Ltd.</div>
@@ -126,24 +136,58 @@
 
   
     <script>
-  async function login() {
+      
+   async function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
+    if (!email || !password) {
+      alert("Please fill in both email and password.");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("http://localhost:5000/api/admin-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const result = await response.json();
-      alert(result.message);
+
+      if (result.success) {
+        // Redirect to admin dashboard on success
+        window.location.href = "/dashboard2.html";
+      } else {
+        alert(result.message || "Invalid login");
+      }
     } catch (err) {
       alert("Error connecting to server");
       console.error(err);
     }
   }
+
+  // Optional: Press Enter to submit
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") login();
+  });
+
+
+  function togglePassword() {
+  const passwordInput = document.getElementById("password");
+  const eyeIcon = document.getElementById("eyeIcon");
+
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    eyeIcon.classList.remove("fa-eye");
+    eyeIcon.classList.add("fa-eye-slash");
+  } else {
+    passwordInput.type = "password";
+    eyeIcon.classList.remove("fa-eye-slash");
+    eyeIcon.classList.add("fa-eye");
+  }
+}
+
 </script>
 
    

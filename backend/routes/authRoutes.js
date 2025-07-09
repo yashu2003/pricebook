@@ -6,6 +6,8 @@ const db = require('../db');
 
 const dataPath = path.join(__dirname, '../data/access_codes.json');
 
+
+
 router.post('/department-login', (req, res) => {
   const { department, accessCode } = req.body;
 
