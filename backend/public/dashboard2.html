@@ -2,423 +2,295 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PriceBook Admin - Tata Communications</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --bg: #f8f9fa;
-            --text: #212529;
-            --card: #ffffff;
-            --highlight: #e9ecef;
-            --border: #dee2e6;
-            --primary: #0056b3; /* Professional Blue */
-            --primary-light: #e6f0ff;
-            --accent: #ffc107; /* Accent Color */
-            --export: #28a745; /* Success Green */
-            --delete: #dc3545;
-            
-            --dark-bg: #121212;
-            --dark-text: #e0e0e0;
-            --dark-card: #1e1e1e;
-            --dark-highlight: #2c2c2c;
-            --dark-border: #444;
+            --bg: #f4f7fa; --text-primary: #1a202c; --text-secondary: #4a5568; --card-bg: #ffffff; --border-color: #e2e8f0; --primary-blue: #0056b3; --primary-blue-light: #e6f0ff; --primary-blue-dark: #004494; --accent-green: #2f855a; --accent-amber-bg: #fef3c7; --accent-amber-text: #92400E; --accent-amber-border: #fde68a; --danger-red: #dc3545;
+            --dark-bg: #1a202c; --dark-text-primary: #e2e8f0; --dark-text-secondary: #a0aec0; --dark-card-bg: #2d3748; --dark-border-color: #4a5568; --dark-primary-blue: #63b3ed; --dark-accent-green: #68d391; --dark-accent-amber-bg: #4a3a1d; --dark-accent-amber-text: #fde68a; --dark-accent-amber-border: #b7791f;
         }
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            transition: all 0.3s ease;
-        }
-        .dark-mode {
-            --bg: var(--dark-bg);
-            --text: var(--dark-text);
-            --card: var(--dark-card);
-            --highlight: var(--dark-highlight);
-            --border: var(--dark-border);
-            --primary: #4dabf7;
-            --export: #4caf50;
-            --delete: #ef5350;
-        }
-        header {
-            background: var(--card);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo i {
-            font-size: 1.8rem;
-        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; }
+        .dark-mode { --bg: var(--dark-bg); --text-primary: var(--dark-text-primary); --text-secondary: var(--dark-text-secondary); --card-bg: var(--dark-card-bg); --border-color: var(--dark-border-color); --primary-blue: var(--dark-primary-blue); --accent-green: var(--dark-accent-green); --accent-amber-bg: var(--dark-accent-amber-bg); --accent-amber-text: var(--dark-accent-amber-text); --accent-amber-border: var(--dark-accent-amber-border); }
+        
+        /* Layout & Cards */
+        .page-wrapper { padding: 1.5rem 2rem; }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); transition: background-color 0.3s; }
+        .dark-mode .card { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .controls-card { padding: 1.5rem; margin-bottom: 2rem; }
+        .table-card { overflow: hidden; }
+
+        /* Header */
+        header { background: var(--card-bg); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 10px; }
+        .logo i { font-size: 1.8rem; }
         .header-actions { display: flex; gap: 1rem; align-items: center; }
-        .header-actions button {
-            background: none; border: none; color: var(--text); cursor: pointer;
-            font-size: 1rem; display: flex; align-items: center; gap: 8px;
-            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
-        }
-        .header-actions button:hover { background: var(--highlight); color: var(--primary); }
-        .theme-toggle i, .logout-btn i { font-size: 1.25rem; }
-
-        main { padding: 2rem; }
-        h1 { color: var(--primary); margin-bottom: 1.5rem; font-size: 2rem; font-weight: 700; }
+        .header-actions button { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+        .header-actions button:hover { background: var(--bg); color: var(--primary-blue); }
         
-        .controls {
-            background: var(--card); padding: 1.5rem; border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 2rem;
-        }
-        .filters-actions-wrapper {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-        .filters, .actions {
-            display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;
-        }
-        .filter, .action-item { display: flex; flex-direction: column; gap: 8px; min-width: 220px; }
-        .filter label, .action-item label {
-            font-weight: 600; color: var(--text); font-size: 0.9rem;
-        }
-        .filter input, .filter select, .action-item select {
-            padding: 12px; border: 1px solid var(--border); border-radius: 8px;
-            background: var(--bg); color: var(--text); font-size: 1rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .filter input:focus, .filter select:focus, .action-item select:focus {
-            outline: none; border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
+        /* Controls & Filters */
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 1.5rem; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; align-items: flex-end; }
+        .control-item label { font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; display: block; }
+        .control-item input, .control-item select { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg); color: var(--text-primary); font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-item input:focus, .control-item select:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px var(--primary-blue-light); }
+        .actions-bar { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
         
-        .btn {
-            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
-            font-weight: 600; font-size: 0.95rem; display: flex; align-items: center;
-            gap: 10px; transition: all 0.2s; white-space: nowrap;
-        }
-        .btn:disabled { cursor: not-allowed; background-color: #ccc !important; }
+        /* Custom Dropdown */
+        .custom-dropdown { position: relative; cursor: pointer; }
+        .dropdown-button { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); transition: all 0.2s; }
+        .dropdown-button:hover { border-color: var(--primary-blue); }
+        .dropdown-button.open { border-color: var(--primary-blue); box-shadow: 0 0 0 3px var(--primary-blue-light); }
+        .dropdown-button span { font-weight: 500; }
+        .dropdown-button .chevron { transition: transform 0.2s; }
+        .dropdown-button.open .chevron { transform: rotate(180deg); }
+        .dropdown-menu { position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--card-bg); border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); z-index: 10; list-style: none; padding: 8px; margin: 0; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+        .dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .dropdown-menu li { padding: 10px 12px; border-radius: 6px; font-weight: 500; transition: background-color 0.2s; }
+        .dropdown-menu li:hover { background: var(--bg); color: var(--primary-blue); }
+        .dropdown-menu li.selected { background: var(--primary-blue-light); color: var(--primary-blue-dark); }
+        .dark-mode .dropdown-menu li.selected { background-color: var(--primary-blue); color: var(--dark-text-primary); }
 
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover:not(:disabled) { background-color: #004494; transform: translateY(-2px); }
-        
-        .btn-secondary { background: var(--highlight); color: var(--text); border: 1px solid var(--border); }
-        .btn-secondary:hover:not(:disabled) { background: var(--border); }
+        /* Buttons */
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; transition: all 0.2s; white-space: nowrap; }
+        .btn:disabled { cursor: not-allowed; background-color: #ccc !important; opacity: 0.6; }
+        .btn-primary { background-color: var(--primary-blue); color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-blue-dark); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 86, 179, 0.3); }
+        .btn-secondary { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover:not(:disabled) { background: var(--border-color); }
+        .btn-export { background-color: var(--accent-green); color: white; }
+        .btn-export:hover:not(:disabled) { background-color: #276749; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3); }
 
-        .btn-export { background-color: var(--export); color: white; }
-        .btn-export:hover:not(:disabled) { background-color: #218838; transform: translateY(-2px); }
-
-        .table-container {
-            background: var(--card); border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-            overflow-x: auto;
-        }
-
-        /* === COMPACT TABLE STYLES (EXCEL-LIKE) === */
-        table {
-            width: 100%;
-            border-collapse: separate; /* Changed */
-            border-spacing: 0;         /* Added */
-        }
-        th, td {
-            text-align: left;
-            padding: 6px 8px;       /* Reduced Padding */
-            font-size: 12px;          /* Reduced Font Size */
-            border-bottom: 1px solid var(--border);
-            border-right: 1px solid var(--border); /* Added Vertical Border */
-            white-space: normal;      /* Allow text wrapping */
-            overflow: visible;        /* Ensure wrapping is visible */
-            text-overflow: clip;      /* Clip text that overflows */
-            max-width: 250px;         /* Control max column width */
-            min-width: 80px;          /* Set a minimum width */
-        }
-        th {
-            background: var(--highlight);
-            font-weight: 600;
-            text-transform: uppercase;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
+        /* Table Styles */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th, td { text-align: left; padding: 6px 8px; font-size: 13px; border-bottom: 1px solid var(--border-color); white-space: nowrap; transition: background-color 0.2s; }
+        th { background: var(--bg); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; z-index: 1; }
         tr:last-child td { border-bottom: none; }
-        td:last-child, th:last-child { border-right: none; } /* Remove border on last column */
         
-        /* Keep hover effects for usability */
-        tr.table-row:nth-child(even) { background-color: var(--bg); }
-        tr.table-row:hover { background-color: var(--primary-light); }
-        .dark-mode tr.table-row:hover { background-color: var(--dark-highlight); }
-        .dark-mode tr.table-row:nth-child(even) { background-color: #2c2c2c; }
-
-
-        .action-btn {
-            background: none; border: none; cursor: pointer;
-            font-size: 14px; /* Adjusted size to match table text */
-            margin: 0 4px; 
-            transition: color 0.2s, transform 0.2s;
-        }
-        .action-btn:hover { transform: scale(1.2); }
-        .edit-btn { color: var(--primary); }
-        .edit-btn:hover { color: #004494; }
-        .delete-btn { color: var(--delete); }
-        .delete-btn:hover { color: #c82333; }
+        /* Derived Column Styles */
+        th.derived-column { background-color: var(--accent-amber-bg); color: var(--accent-amber-text); border-bottom: 1px solid var(--accent-amber-border); font-weight: 700; }
+        td.derived-column { background-color: var(--card-bg); }
+        .derived-icon { margin-left: 8px; opacity: 0.7; cursor: help; position: relative; }
         
-        /* Loader styles */
-        .loader-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.7); z-index: 9999;
-            display: none; justify-content: center; align-items: center;
-        }
+        /* Tooltip Styles */
+        .tooltip { position: absolute; background-color: #1a202c; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 20; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: #1a202c transparent transparent transparent; }
+        .derived-icon:hover .tooltip { opacity: 1; }
+
+        /* Loader & Toast */
+        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); z-index: 9999; display: none; justify-content: center; align-items: center; }
         .dark-mode .loader-overlay { background: rgba(0, 0, 0, 0.7); }
-        .loader {
-            border: 8px solid var(--highlight); border-top: 8px solid var(--primary);
-            border-radius: 50%; width: 60px; height: 60px;
-            animation: spin 1s linear infinite;
-        }
+        .loader { border: 8px solid var(--border-color); border-top: 8px solid var(--primary-blue); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Toast Notification styles */
         .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
-        .toast-notification {
-            padding: 12px 20px; border-radius: 8px; color: white;
-            font-weight: 500; margin-top: 10px; opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            transform: translateY(20px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        .toast-notification { padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; margin-top: 10px; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(20px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .toast-notification.show { opacity: 1; transform: translateY(0); }
         .toast-info { background-color: #17a2b8; }
-        .toast-success { background-color: #28a745; }
-        .toast-error { background-color: #dc3545; }
-        
-        /* Empty State styles */
+        .toast-success { background-color: var(--accent-green); }
+        .toast-error { background-color: var(--danger-red); }
         .empty-state { text-align: center; padding: 4rem 2rem; }
-        .empty-state i { font-size: 4rem; color: #ced4da; margin-bottom: 1rem; }
-        .empty-state p { font-size: 1.1rem; color: #6c757d; }
-        .dark-mode .empty-state i { color: #555; }
-        .dark-mode .empty-state p { color: #888; }
-        
-        @media (max-width: 1200px) {
-            .filters-actions-wrapper { flex-direction: column; align-items: stretch; }
-        }
-        @media (max-width: 768px) {
-            header { flex-direction: column; gap: 1rem; text-align: center; }
-            main { padding: 1rem; }
-            .filters, .actions { flex-direction: column; align-items: stretch; }
-            th, td { max-width: none; } /* Allow more natural flow on mobile */
-        }
+        .empty-state i { font-size: 4rem; color: #cbd5e0; margin-bottom: 1rem; }
+        .empty-state p { font-size: 1.1rem; color: var(--text-secondary); }
+
+        .btn-icon { 
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+.btn-icon:hover {
+    color: var(--primary-blue);
+}
+/* Add this new style */
+.btn-icon.delete:hover {
+    color: var(--danger-red);
+}
+
+
+
+
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">
-            <i class="fas fa-book"></i> PriceBook Admin
-        </div>
+        <div class="logo"><i class="fas fa-book"></i> PriceBook Admin</div>
         <div class="header-actions">
-            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i><span>Theme</span></button>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+            <button onclick="toggleTheme()"><i class="fas fa-moon"></i><span>Theme</span></button>
+            <button onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
         </div>
     </header>
 
-    <main>
-        <h1 id="dashboardTitle">Admin Dashboard</h1>
-        <div class="controls">
-            <div class="filters-actions-wrapper">
-                 <div class="actions">
-                    <div class="action-item">
-                        <label for="productSelect">Select Product</label>
-                        <select id="productSelect" onchange="productSelected()">
-                            <option value="">Loading products...</option>
-                        </select>
+    <div class="page-wrapper">
+        <h1 id="dashboardTitle" class="page-title">Admin Dashboard</h1>
+        
+        <div class="card controls-card">
+            <div class="filters-grid">
+                <div class="control-item">
+                    <label for="productSelect">Select Product</label>
+                    <select id="productSelect" onchange="productSelected()"></select>
+                </div>
+                <!-- Custom Dropdown for Floor Type -->
+                <div class="control-item" id="floorSelectorContainer" style="display: none;">
+                    <label>Viewing</label>
+                    <div class="custom-dropdown" id="customFloorDropdown">
+                        <div class="dropdown-button" id="dropdownButton">
+                            <span id="selectedValue"></span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <ul class="dropdown-menu" id="dropdownMenu"></ul>
                     </div>
                 </div>
-                <div class="filters">
-                    <div class="filter">
-                        <label for="filterCountry">Filter by Country</label>
-                        <input type="text" placeholder="e.g., India" id="filterCountry">
-                    </div>
-                    <div class="filter">
-                        <label for="filterDestination">Filter by Destination</label>
-                        <input type="text" placeholder="e.g., Mumbai" id="filterDestination">
-                    </div>
-                    <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+                <div class="control-item">
+                    <label for="filterCountry">Filter by Country</label>
+                    <input type="text" placeholder="e.g., India" id="filterCountry">
+                </div>
+                <div class="control-item">
+                    <label for="filterDestination">Filter by Destination</label>
+                    <input type="text" placeholder="e.g., Mumbai" id="filterDestination">
+                </div>
+                <div class="control-item">
+                    <label>&nbsp;</label> <!-- Spacer for alignment -->
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
                 </div>
             </div>
-             <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
-             <div class="actions">
+            <div class="actions-bar">
+
+                 <button class="btn btn-secondary" id="templateBtn" onclick="downloadTemplate()" disabled>
+                    <i class="fas fa-file-download"></i> Download Template
+                </button>
+
+                <button class="btn btn-secondary" id="importBtn" onclick="openFilePicker()" disabled>
+                    <i class="fas fa-file-import"></i> Import
+                </button>
+
+                <input type="file" id="fileInput" onchange="handleFileUpload(event)" accept=".xlsx, .xls, .csv" style="display: none;" />
                 <button class="btn btn-export" id="exportBtn" onclick="exportToExcel()" disabled>
-                    <i class="fas fa-file-excel"></i> Export
+                    <i class="fas fa-file-excel"></i> Export All
                 </button>
-                <button class="btn btn-primary" onclick="showToast('Add New Rate functionality coming soon!', 'info')">
-                    <i class="fas fa-plus"></i> Add New Rate
-                </button>
+                
             </div>
         </div>
 
-        <div class="table-container">
-            <table id="ratesTable">
-                <thead id="ratesTableHeader"></thead>
-                <tbody id="ratesTableBody">
-                    <tr><td colspan="100%">
-                         <div class="empty-state">
-                            <i class="fas fa-cubes"></i>
-                            <p>Please select a product to view its rate data.</p>
-                        </div>
-                    </td></tr>
-                </tbody>
-            </table>
+        <div class="card table-card">
+            <div class="table-container">
+                <table id="ratesTable">
+                    <thead id="ratesTableHeader"></thead>
+                    <tbody id="ratesTableBody"></tbody>
+                </table>
+            </div>
         </div>
-    </main>
+    </div>
     
     <div class="loader-overlay" id="loader"><div class="loader"></div></div>
     <div class="toast-container" id="toast-container"></div>
     
     <script src="js/dashboardConfig.js"></script>
+    <script>src="../config/excelConfig"</script>
     <script>
-    // --- STATE VARIABLES ---
+    // --- STATE & DOM ELEMENTS ---
     let currentLoadedTableName = '';
-    let originalData = []; // Unfiltered data from API
-    let currentProcessedData = []; // Processed and potentially filtered data
+    let originalData = [];
+    let currentFilteredData = [];
     const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const fileInput = document.getElementById('fileInput');
+    const floorSelectorContainer = document.getElementById('floorSelectorContainer');
+    const dropdownButton = document.getElementById('dropdownButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const selectedValueSpan = document.getElementById('selectedValue');
+    const templateBtn = document.getElementById('templateBtn');
 
-    // --- UTILITY & UX FUNCTIONS ---
-    function showLoader(show) {
-        document.getElementById('loader').style.display = show ? 'flex' : 'none';
-    }
-
-    function showToast(message, type = 'info') { // types: info, success, error
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast-notification toast-${type}`;
-        toast.textContent = message;
-        container.appendChild(toast);
-
-        setTimeout(() => toast.classList.add('show'), 10); // Trigger animation
-        setTimeout(() => {
-            toast.classList.remove('show');
-            toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-    }
-    
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        const icon = document.querySelector('.theme-toggle i');
-        icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    }
-
-    // --- AUTH & INITIALIZATION ---
+    // --- INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+        if (localStorage.getItem('theme') === 'dark') { 
+            document.body.classList.add('dark-mode'); 
+            document.querySelector('.header-actions button i.fa-moon').classList.replace('fa-moon', 'fa-sun');
         }
-        // checkAuth(); // Uncomment if you have the auth endpoint
         loadProducts();
-        
         document.getElementById('filterCountry').addEventListener('input', applyFilters);
         document.getElementById('filterDestination').addEventListener('input', applyFilters);
+        setupCustomDropdown();
+        updateUIForNoProduct();
     });
 
-    async function checkAuth() { /* ... (no changes needed) ... */ }
-    async function logout() { /* ... (no changes needed) ... */ }
+    // --- UI & THEME ---
+    function toggleTheme() { 
+        document.body.classList.toggle('dark-mode'); 
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const themeIcon = document.querySelector('.header-actions button i');
+        themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light'); 
+    }
+    function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+    function showToast(message, type = 'info') { const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = `toast-notification toast-${type}`; toast.textContent = message; container.appendChild(toast); setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove()); }, 3000); }
 
-    // --- DATA LOADING & RENDERING ---
+    // --- DATA LOADING & PROCESSING ---
     async function loadProducts() {
         const productSelect = document.getElementById('productSelect');
         try {
             const response = await fetch('/api/products');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
             if (result.success && result.data.length > 0) {
                 productSelect.innerHTML = '<option value="">-- Select a Product --</option>';
-                result.data.forEach(product => {
-                    const option = new Option(product.product_name, product.product_id);
-                    productSelect.appendChild(option);
-                });
+                result.data.forEach(p => productSelect.add(new Option(p.product_name, p.product_id)));
             } else {
                 productSelect.innerHTML = '<option value="">No products found</option>';
             }
         } catch (error) {
+            console.error("Failed to load product list:", error);
             productSelect.innerHTML = '<option value="">Error loading products</option>';
             showToast("Failed to load product list.", "error");
         }
     }
 
     async function productSelected() {
-        const productSelect = document.getElementById('productSelect');
-        const selectedProductId = productSelect.value;
-        const selectedProductName = productSelect.options[productSelect.selectedIndex].text;
-        
-        document.getElementById('dashboardTitle').textContent = selectedProductName ? `${selectedProductName} Rates` : 'Admin Dashboard';
-        clearFilters(false); // Clear filters without re-rendering empty table
-
+        const selectedProductId = document.getElementById('productSelect').value;
         if (selectedProductId) {
             await loadProductData(selectedProductId);
         } else {
-            document.getElementById('ratesTableHeader').innerHTML = '';
-            document.getElementById('ratesTableBody').innerHTML = `<tr><td colspan="100%">
-                <div class="empty-state"><i class="fas fa-cubes"></i><p>Please select a product to view its rate data.</p></div>
-            </td></tr>`;
-            originalData = [];
-            currentProcessedData = [];
-            exportBtn.disabled = true;
+            updateUIForNoProduct();
         }
     }
 
     async function loadProductData(productId) {
         showLoader(true);
-        const tableBody = document.getElementById('ratesTableBody');
-        tableBody.innerHTML = '';
-        document.getElementById('ratesTableHeader').innerHTML = '';
-
+        exportBtn.disabled = true;
+        importBtn.disabled = true;
         try {
             const response = await fetch(`/api/product-data/${productId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
-
-            if (result.success && result.data.length > 0) {
+            if (result.success) {
                 currentLoadedTableName = result.tableName;
-                const derivedColsForTable = DERIVED_COLUMN_CONFIG[currentLoadedTableName] || [];
-                
-                originalData = result.data.map(row => {
-                    const newRow = { ...row };
-                    derivedColsForTable.forEach(derivedCol => {
-                        newRow[derivedCol.name] = derivedCol.formula(row);
-                    });
-                    return newRow;
-                });
-
-                applyFilters(); // This will process and render the data
-                exportBtn.disabled = false;
+                originalData = result.data;
+                updateUIForNewProduct();
+                applyFilters();
+                const hasData = originalData.length > 0;
+                exportBtn.disabled = !hasData;
+                importBtn.disabled = false;
             } else {
-                tableBody.innerHTML = `<tr><td colspan="100%">
-                    <div class="empty-state"><i class="fas fa-box-open"></i><p>${result.message || 'No data found for this product.'}</p></div>
-                </td></tr>`;
-                originalData = [];
-                currentProcessedData = [];
-                exportBtn.disabled = true;
+                throw new Error(result.message || "Failed to load data.");
             }
         } catch (error) {
             console.error('Error fetching product data:', error);
-            showToast("Network error. Please check the server.", "error");
-            tableBody.innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas fa-server"></i><p>Could not connect to the server.</p></div></td></tr>`;
-            exportBtn.disabled = true;
+            showToast(error.message, "error");
+            document.getElementById('ratesTableBody').innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas fa-server"></i><p>Could not load data for this product.</p></div></td></tr>`;
+            originalData = [];
         } finally {
             showLoader(false);
         }
     }
 
+    // --- TABLE RENDERING (ENHANCED) ---
     function renderTable(data) {
         const tableHeader = document.getElementById('ratesTableHeader');
         const tableBody = document.getElementById('ratesTableBody');
@@ -426,108 +298,307 @@
         tableBody.innerHTML = '';
 
         if (data.length === 0) {
-             tableBody.innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas fa-filter"></i><p>No records match your filter criteria.</p></div></td></tr>`;
-             return;
+            const message = originalData.length > 0 ? 'No records match your filter criteria.' : 'No data available for this product.';
+            const icon = originalData.length > 0 ? 'fa-filter' : 'fa-database';
+            tableBody.innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas ${icon}"></i><p>${message}</p></div></td></tr>`;
+            return;
         }
-        
-        const columnsToDisplay = COLUMN_MAPPINGS[currentLoadedTableName] ? Object.keys(COLUMN_MAPPINGS[currentLoadedTableName]) : Object.keys(data[0] || {});
+
+        const columnsConfig = COLUMN_MAPPINGS[currentLoadedTableName] || {};
+        const derivedInfo = DERIVED_INFO[currentLoadedTableName] || {};
+        const derivedColumnsForProduct = Object.keys(derivedInfo);
+        const columnsToDisplay = Object.keys(columnsConfig);
         
         const headerRow = document.createElement('tr');
         columnsToDisplay.forEach(colKey => {
             const th = document.createElement('th');
-            th.textContent = COLUMN_MAPPINGS[currentLoadedTableName]?.[colKey] || colKey.replace(/_/g, ' ');
+            th.dataset.colKey = colKey;
+            let headerContent = `<span>${columnsConfig[colKey] || colKey.replace(/_/g, ' ')}</span>`;
+            
+            if (derivedColumnsForProduct.includes(colKey)) {
+                th.classList.add('derived-column');
+                headerContent += `<span class="derived-icon"><i class="fas fa-calculator"></i><div class="tooltip">${derivedInfo[colKey].formula}</div></span>`;
+            }
+            
+            th.innerHTML = headerContent;
             headerRow.appendChild(th);
         });
-        headerRow.innerHTML += '<th>Actions</th>';
+        const actionsTh = document.createElement('th');
+        actionsTh.textContent = 'Actions';
+        actionsTh.dataset.colKey = 'actions';
+        headerRow.appendChild(actionsTh);
         tableHeader.appendChild(headerRow);
 
         data.forEach(rowObject => {
             const row = document.createElement('tr');
-            row.className = 'table-row';
-            
             columnsToDisplay.forEach(colKey => {
                 const td = document.createElement('td');
-                let cellValue = rowObject[colKey];
-                const derivedColConfig = (DERIVED_COLUMN_CONFIG[currentLoadedTableName] || []).find(d => d.name === colKey);
-                
-                if (derivedColConfig && derivedColConfig.format) cellValue = derivedColConfig.format(cellValue);
-                else if (cellValue === null || cellValue === undefined) cellValue = '–'; // Use en-dash for empty
-                
-                td.textContent = cellValue;
+                td.textContent = rowObject[colKey] ?? '–';
+                td.dataset.colKey = colKey;
+                if (derivedColumnsForProduct.includes(colKey)) {
+                    td.classList.add('derived-column');
+                }
                 row.appendChild(td);
             });
-            
             const actionsTd = document.createElement('td');
             const rowId = rowObject[Object.keys(rowObject)[0]]; 
             actionsTd.innerHTML = `
-                <button class="action-btn edit-btn" onclick="showToast('Edit row ID: ${rowId} from ${currentLoadedTableName}', 'info')"><i class="fas fa-edit"></i></button>
-                <button class="action-btn delete-btn" onclick="showToast('Delete row ID: ${rowId} from ${currentLoadedTableName}', 'error')"><i class="fas fa-trash-alt"></i></button>
-            `;
+            <button class="btn-icon delete" onclick="deleteRate('${rowId}')" title="Delete">
+        <i class="fas fa-trash-alt"></i>
+    </button>`;
+
+            actionsTd.dataset.colKey = 'actions';
             row.appendChild(actionsTd);
             tableBody.appendChild(row);
         });
+
+        applyFloorView();
     }
 
-    // --- FILTERING & EXPORT ---
+    // --- CUSTOM DROPDOWN LOGIC ---
+    function setupCustomDropdown() {
+        dropdownButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('open');
+            dropdownButton.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!floorSelectorContainer.contains(e.target)) {
+                dropdownMenu.classList.remove('open');
+                dropdownButton.classList.remove('open');
+            }
+        });
+    }
+
+    function updateDropdown(options, selectedKey) {
+        dropdownMenu.innerHTML = '';
+        options.forEach(optionKey => {
+            const li = document.createElement('li');
+            li.textContent = optionKey;
+            li.dataset.value = optionKey;
+            if (optionKey === selectedKey) {
+                li.classList.add('selected');
+                selectedValueSpan.textContent = optionKey;
+            }
+            li.addEventListener('click', () => {
+                selectedValueSpan.textContent = optionKey;
+                dropdownMenu.querySelector('.selected')?.classList.remove('selected');
+                li.classList.add('selected');
+                dropdownMenu.classList.remove('open');
+                dropdownButton.classList.remove('open');
+                applyFloorView();
+            });
+            dropdownMenu.appendChild(li);
+        });
+    }
+
+    // --- UI STATE MANAGEMENT ---
+    function updateUIForNoProduct() {
+        document.getElementById('dashboardTitle').textContent = 'Admin Dashboard';
+        document.getElementById('ratesTableHeader').innerHTML = '';
+        document.getElementById('ratesTableBody').innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas fa-cubes"></i><p>Please select a product to view its rate data.</p></div></td></tr>`;
+        originalData = [];
+        currentFilteredData = [];
+        exportBtn.disabled = true;
+        importBtn.disabled = true;
+          templateBtn.disabled = true;
+        floorSelectorContainer.style.display = 'none';
+        clearFilters(false);
+    }
+
+    function updateUIForNewProduct() {
+        const productSelect = document.getElementById('productSelect');
+        const selectedProductName = productSelect.options[productSelect.selectedIndex].text;
+        document.getElementById('dashboardTitle').textContent = `${selectedProductName} Rates`;
+
+        const floorConfigForProduct = FLOOR_CONFIG[currentLoadedTableName];
+        if (floorConfigForProduct) {
+            floorSelectorContainer.style.display = 'block';
+            const options = Object.keys(floorConfigForProduct);
+            updateDropdown(options, options[0]); // Select the first option by default
+        } else {
+            floorSelectorContainer.style.display = 'none';
+        }
+        clearFilters(false);
+        templateBtn.disabled = false;
+    }
+    
     function applyFilters() {
         const countryFilter = document.getElementById('filterCountry').value.toLowerCase();
         const destinationFilter = document.getElementById('filterDestination').value.toLowerCase();
-        
-        currentProcessedData = originalData.filter(row => {
-            const country = (row.country || '').toLowerCase();
-            const destination = (row.destination || '').toLowerCase();
+        currentFilteredData = originalData.filter(row => {
+            const country = String(row.country_name || row.country || '').toLowerCase();
+            const destination = String(row.destination_name || row.destination || '').toLowerCase();
             return country.includes(countryFilter) && destination.includes(destinationFilter);
         });
-        
-        renderTable(currentProcessedData);
+        renderTable(currentFilteredData);
     }
-    
+
+    function applyFloorView() {
+        const floorConfigForProduct = FLOOR_CONFIG[currentLoadedTableName];
+        if (!floorConfigForProduct) {
+            document.querySelectorAll('#ratesTable [data-col-key]').forEach(el => el.style.display = '');
+            return;
+        }
+        
+        const selectedFloor = selectedValueSpan.textContent;
+        const columnsForSelectedFloor = floorConfigForProduct[selectedFloor] || [];
+        const allPossibleFloorColumns = Object.values(floorConfigForProduct).flat();
+
+        document.querySelectorAll('#ratesTable [data-col-key]').forEach(el => {
+            const key = el.dataset.colKey;
+            if (!allPossibleFloorColumns.includes(key)) {
+                el.style.display = '';
+            } else {
+                el.style.display = columnsForSelectedFloor.includes(key) ? '' : 'none';
+            }
+        });
+    }
+
     function clearFilters(render = true) {
         document.getElementById('filterCountry').value = '';
         document.getElementById('filterDestination').value = '';
         if (render) {
-            currentProcessedData = [...originalData];
-            renderTable(currentProcessedData);
+            applyFilters();
         }
     }
 
-    function exportToExcel() {
-        if (currentProcessedData.length === 0) {
-            showToast("No data to export.", "error");
-            return;
-        }
+    // --- ACTIONS ---
+    function openFilePicker() { fileInput.click(); }
 
-        const columnsConfig = COLUMN_MAPPINGS[currentLoadedTableName];
-        if (!columnsConfig) {
-            showToast("Table configuration missing.", "error");
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        showLoader(true);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                if (jsonData.length === 0) throw new Error("The selected Excel sheet is empty.");
+
+                const reverseColumnMap = Object.fromEntries(Object.entries(COLUMN_MAPPINGS[currentLoadedTableName]).map(([k, v]) => [v, k]));
+                const sanitizedData = jsonData.map(row => {
+                    const newRow = {};
+                    for (const key in row) {
+                        const dbColumn = reverseColumnMap[key];
+                        if (dbColumn) newRow[dbColumn] = row[key];
+                    }
+                    return newRow;
+                });
+
+                const productId = document.getElementById('productSelect').value;
+                const response = await fetch(`/api/import/${productId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: sanitizedData })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                if (!result.success) throw new Error(result.message);
+
+                showToast(result.message, 'success');
+                await loadProductData(productId);
+            } catch (error) {
+                console.error('Import failed:', error);
+                showToast(error.message || 'Failed to import file.', 'error');
+            } finally {
+                showLoader(false);
+                fileInput.value = '';
+            }
+        };
+        reader.onerror = () => { showLoader(false); showToast('Failed to read the file.', 'error'); };
+        reader.readAsArrayBuffer(file);
+    }
+function exportToExcel() {
+        const productId = document.getElementById('productSelect').value;
+        if (!productId) {
+            showToast("Please select a product to export.", "error");
             return;
         }
         
-        const headers = Object.values(columnsConfig);
-        const columnKeys = Object.keys(columnsConfig);
+        // Trigger download by navigating to the backend endpoint
+        window.location.href = `/api/export/${productId}`;
+    }
 
-        const dataToExport = currentProcessedData.map(row => {
-            return columnKeys.map(key => {
-                const derivedColConfig = (DERIVED_COLUMN_CONFIG[currentLoadedTableName] || []).find(d => d.name === key);
-                if (derivedColConfig && derivedColConfig.format) return derivedColConfig.format(row[key]);
-                return row[key] ?? '';
-            });
+
+
+    function downloadTemplate() {
+        const productId = document.getElementById('productSelect').value;
+        if (!productId) {
+            showToast("Please select a product first.", "error");
+            return;
+        }
+        // Trigger download by navigating to the new backend endpoint
+        window.location.href = `/api/template/${productId}`;
+    }
+
+// --- Inside the main <script> tag in dashboard.html ---
+
+/**
+ * Prompts the admin for confirmation and sends a request to delete a specific rate.
+ * @param {string|number} rateId - The unique identifier for the rate to be deleted.
+ */
+async function deleteRate(rateId) {
+    // Get the currently selected product ID from the dropdown
+    const productId = document.getElementById('productSelect').value;
+    if (!productId) {
+        showToast("Could not identify the current product.", "error");
+        return;
+    }
+
+    // Use a confirmation dialog to prevent accidental deletion
+    if (!confirm('Are you sure you want to permanently delete this rate?')) {
+        return;
+    }
+
+    showLoader(true);
+    try {
+        // The backend route for deletion is already defined in adminRoutes.js
+        const response = await fetch(`/api/rate/${productId}/${rateId}`, {
+            method: 'DELETE'
         });
 
-        const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.aoa_to_sheet([headers, ...dataToExport]);
+        const result = await response.json();
 
-        const columnWidths = headers.map((header, i) => ({
-            wch: Math.max(header.length, ...dataToExport.map(row => String(row[i] || '').length)) + 2
-        }));
-        worksheet['!cols'] = columnWidths;
+        if (!response.ok || !result.success) {
+            // Throw an error to be caught by the catch block
+            throw new Error(result.message || 'Failed to delete the rate.');
+        }
 
-        const selectedProductName = document.getElementById('productSelect').options[document.getElementById('productSelect').selectedIndex].text;
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Rates");
+        showToast('Rate deleted successfully.', 'success');
+        
+        // Refresh the table data to reflect the deletion
+        await loadProductData(productId);
 
-        const fileName = `${selectedProductName.replace(/ /g, '_')}_Rates_${new Date().toISOString().split('T')[0]}.xlsx`;
-        XLSX.writeFile(workbook, fileName);
-        showToast("Export successful!", "success");
+    } catch (error) {
+        console.error('Deletion failed:', error);
+        showToast(error.message, 'error');
+    } finally {
+        showLoader(false);
+    }
+}
+
+
+
+
+
+
+    async function logout() {
+        try {
+            const response = await fetch('/api/logout');
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = '/admin.html'; // Redirect to login page
+            } else {
+                showToast('Logout failed.', 'error');
+            }
+        } catch (error) {
+            showToast('Logout request failed.', 'error');
+        }
     }
     </script>
 </body>

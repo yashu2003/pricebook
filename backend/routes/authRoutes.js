@@ -18,6 +18,10 @@ router.post('/department-login', (req, res) => {
   const codes = JSON.parse(fs.readFileSync(dataPath));
 
   if (codes[department] && codes[department] === accessCode) {
+    // --- Add these two lines ---
+    req.session.department = department;
+    req.session.isDepartment = true;
+
     return res.json({ success: true, message: "Login successful" });
   } else {
     return res.status(401).json({ success: false, message: "Invalid access code" });

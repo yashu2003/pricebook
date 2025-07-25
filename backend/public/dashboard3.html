@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceBook Admin - Tata Communications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg: #f4f7fa; --text-primary: #1a202c; --text-secondary: #4a5568; --card-bg: #ffffff; --border-color: #e2e8f0; --primary-blue: #0056b3; --primary-blue-light: #e6f0ff; --primary-blue-dark: #004494; --accent-green: #2f855a; --accent-amber-bg: #fef3c7; --accent-amber-text: #92400E; --accent-amber-border: #fde68a; --danger-red: #dc3545;
+            --dark-bg: #1a202c; --dark-text-primary: #e2e8f0; --dark-text-secondary: #a0aec0; --dark-card-bg: #2d3748; --dark-border-color: #4a5568; --dark-primary-blue: #63b3ed; --dark-accent-green: #68d391; --dark-accent-amber-bg: #4a3a1d; --dark-accent-amber-text: #fde68a; --dark-accent-amber-border: #b7791f;
+        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; }
+        .dark-mode { --bg: var(--dark-bg); --text-primary: var(--dark-text-primary); --text-secondary: var(--dark-text-secondary); --card-bg: var(--dark-card-bg); --border-color: var(--dark-border-color); --primary-blue: var(--dark-primary-blue); --accent-green: var(--dark-accent-green); --accent-amber-bg: var(--dark-accent-amber-bg); --accent-amber-text: var(--dark-accent-amber-text); --accent-amber-border: var(--dark-accent-amber-border); }
+        
+        /* Layout & Cards */
+        .page-wrapper { padding: 1.5rem 2rem; }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); transition: background-color 0.3s; }
+        .dark-mode .card { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .controls-card { padding: 1.5rem; margin-bottom: 2rem; }
+        .table-card { overflow: hidden; }
+
+        /* Header */
+        header { background: var(--card-bg); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 10px; }
+        .logo i { font-size: 1.8rem; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .header-actions button { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+        .header-actions button:hover { background: var(--bg); color: var(--primary-blue); }
+        
+        /* Controls & Filters */
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 1.5rem; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; align-items: flex-end; }
+        .control-item label { font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; display: block; }
+        .control-item input, .control-item select { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg); color: var(--text-primary); font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .control-item input:focus, .control-item select:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px var(--primary-blue-light); }
+        .actions-bar { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        
+        /* Custom Dropdown */
+        .custom-dropdown { position: relative; cursor: pointer; }
+        .dropdown-button { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); transition: all 0.2s; }
+        .dropdown-button:hover { border-color: var(--primary-blue); }
+        .dropdown-button.open { border-color: var(--primary-blue); box-shadow: 0 0 0 3px var(--primary-blue-light); }
+        .dropdown-button span { font-weight: 500; }
+        .dropdown-button .chevron { transition: transform 0.2s; }
+        .dropdown-button.open .chevron { transform: rotate(180deg); }
+        .dropdown-menu { position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--card-bg); border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); z-index: 10; list-style: none; padding: 8px; margin: 0; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+        .dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .dropdown-menu li { padding: 10px 12px; border-radius: 6px; font-weight: 500; transition: background-color 0.2s; }
+        .dropdown-menu li:hover { background: var(--bg); color: var(--primary-blue); }
+        .dropdown-menu li.selected { background: var(--primary-blue-light); color: var(--primary-blue-dark); }
+        .dark-mode .dropdown-menu li.selected { background-color: var(--primary-blue); color: var(--dark-text-primary); }
+
+        /* Buttons */
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; transition: all 0.2s; white-space: nowrap; }
+        .btn:disabled { cursor: not-allowed; background-color: #ccc !important; opacity: 0.6; }
+        .btn-primary { background-color: var(--primary-blue); color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-blue-dark); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 86, 179, 0.3); }
+        .btn-secondary { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover:not(:disabled) { background: var(--border-color); }
+        .btn-export { background-color: var(--accent-green); color: white; }
+        .btn-export:hover:not(:disabled) { background-color: #276749; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3); }
+
+        /* Table Styles */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th, td { text-align: left; padding: 6px 8px; font-size: 13px; border-bottom: 1px solid var(--border-color); white-space: nowrap; transition: background-color 0.2s; }
+        th { background: var(--bg); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; z-index: 1; }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Derived Column Styles */
+        th.derived-column { background-color: var(--accent-amber-bg); color: var(--accent-amber-text); border-bottom: 1px solid var(--accent-amber-border); font-weight: 700; }
+        td.derived-column { background-color: var(--card-bg); }
+        .derived-icon { margin-left: 8px; opacity: 0.7; cursor: help; position: relative; }
+        
+        /* Tooltip Styles */
+        .tooltip { position: absolute; background-color: #1a202c; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 20; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: #1a202c transparent transparent transparent; }
+        .derived-icon:hover .tooltip { opacity: 1; }
+
+        /* Loader & Toast */
+        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .dark-mode .loader-overlay { background: rgba(0, 0, 0, 0.7); }
+        .loader { border: 8px solid var(--border-color); border-top: 8px solid var(--primary-blue); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
+        .toast-notification { padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; margin-top: 10px; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(20px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .toast-notification.show { opacity: 1; transform: translateY(0); }
+        .toast-info { background-color: #17a2b8; }
+        .toast-success { background-color: var(--accent-green); }
+        .toast-error { background-color: var(--danger-red); }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state i { font-size: 4rem; color: #cbd5e0; margin-bottom: 1rem; }
+        .empty-state p { font-size: 1.1rem; color: var(--text-secondary); }
+
+        .btn-icon { 
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+.btn-icon:hover {
+    color: var(--primary-blue);
+}
+/* Add this new style */
+.btn-icon.delete:hover {
+    color: var(--danger-red);
+}
+
+/* --- New Styles for Checkbox Dropdown --- */
+
+/* Style for each item in the dropdown list */
+.dropdown-menu li {
+    padding: 0 8px; /* Adjust padding for a cleaner look */
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+/* Add a hover effect to each list item */
+.dropdown-menu li:hover {
+    background-color: var(--bg);
+}
+
+/* Use Flexbox on the label for perfect alignment */
+.dropdown-menu label {
+    display: flex;
+    align-items: center; /* Vertically aligns the checkbox with the text */
+    cursor: pointer;
+    padding: 10px 4px; /* Give the text some space */
+    font-weight: 500;
+    width: 100%;
+}
+
+/* Add some space between the checkbox and its text label */
+.dropdown-menu input[type="checkbox"] {
+    margin-right: 12px; /* Adjust spacing as needed */
+    width: 16px;        /* Set a consistent size */
+    height: 16px;       /* Set a consistent size */
+}
+
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><i class="fas fa-book"></i> PriceBook Admin</div>
+        <div class="header-actions">
+            <button onclick="toggleTheme()"><i class="fas fa-moon"></i><span>Theme</span></button>
+            <button onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+        <h1 id="dashboardTitle" class="page-title">Admin Dashboard</h1>
+        
+        <div class="card controls-card">
+            <div class="filters-grid">
+                <div class="control-item">
+                    <label for="productSelect">Select Product</label>
+                    <select id="productSelect" onchange="productSelected()"></select>
+                </div>
+                <!-- Custom Dropdown for Floor Type -->
+                <div class="control-item" id="floorSelectorContainer" style="display: none;">
+                    <label>Viewing</label>
+                    <div class="custom-dropdown" id="customFloorDropdown">
+                        <div class="dropdown-button" id="dropdownButton">
+                            <span id="selectedValue">Select Floor Views</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <ul class="dropdown-menu" id="dropdownMenu"></ul>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label for="filterCountry">Filter by Country</label>
+                    <input type="text" placeholder="e.g., India" id="filterCountry">
+                </div>
+                <div class="control-item">
+                    <label for="filterDestination">Filter by Destination</label>
+                    <input type="text" placeholder="e.g., Mumbai" id="filterDestination">
+                </div>
+                <div class="control-item">
+                    <label>&nbsp;</label> <!-- Spacer for alignment -->
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+            <div class="actions-bar">
+
+                 <button class="btn btn-secondary" id="templateBtn" onclick="downloadTemplate()" disabled>
+                    <i class="fas fa-file-download"></i> Download Template
+                </button>
+
+                <button class="btn btn-secondary" id="importBtn" onclick="openFilePicker()" disabled>
+                    <i class="fas fa-file-import"></i> Import
+                </button>
+
+                <input type="file" id="fileInput" onchange="handleFileUpload(event)" accept=".xlsx, .xls, .csv" style="display: none;" />
+                <button class="btn btn-export" id="exportBtn" onclick="exportToExcel()" disabled>
+                    <i class="fas fa-file-excel"></i> Export All
+                </button>
+                
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="table-container">
+                <table id="ratesTable">
+                    <thead id="ratesTableHeader"></thead>
+                    <tbody id="ratesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loader-overlay" id="loader"><div class="loader"></div></div>
+    <div class="toast-container" id="toast-container"></div>
+    
+    <script src="js/dashboardConfig.js"></script>
+    <script>src="../config/excelConfig"</script>
+    <script>
+    // --- STATE & DOM ELEMENTS ---
+    let currentLoadedTableName = '';
+    let originalData = [];
+    let currentFilteredData = [];
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const fileInput = document.getElementById('fileInput');
+    const floorSelectorContainer = document.getElementById('floorSelectorContainer');
+    const dropdownButton = document.getElementById('dropdownButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const selectedValueSpan = document.getElementById('selectedValue');
+    const templateBtn = document.getElementById('templateBtn');
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('theme') === 'dark') { 
+            document.body.classList.add('dark-mode'); 
+            document.querySelector('.header-actions button i.fa-moon').classList.replace('fa-moon', 'fa-sun');
+        }
+        loadProducts();
+        document.getElementById('filterCountry').addEventListener('input', applyFilters);
+        document.getElementById('filterDestination').addEventListener('input', applyFilters);
+        setupCustomDropdown();
+        updateUIForNoProduct();
+    });
+
+    // --- UI & THEME ---
+    function toggleTheme() { 
+        document.body.classList.toggle('dark-mode'); 
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const themeIcon = document.querySelector('.header-actions button i');
+        themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light'); 
+    }
+    function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+    function showToast(message, type = 'info') { const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = `toast-notification toast-${type}`; toast.textContent = message; container.appendChild(toast); setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove()); }, 3000); }
+
+    // --- DATA LOADING & PROCESSING ---
+    async function loadProducts() {
+        const productSelect = document.getElementById('productSelect');
+        try {
+            const response = await fetch('/api/products');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (result.success && result.data.length > 0) {
+                productSelect.innerHTML = '<option value="">-- Select a Product --</option>';
+                result.data.forEach(p => productSelect.add(new Option(p.product_name, p.product_id)));
+            } else {
+                productSelect.innerHTML = '<option value="">No products found</option>';
+            }
+        } catch (error) {
+            console.error("Failed to load product list:", error);
+            productSelect.innerHTML = '<option value="">Error loading products</option>';
+            showToast("Failed to load product list.", "error");
+        }
+    }
+
+    async function productSelected() {
+        const selectedProductId = document.getElementById('productSelect').value;
+        if (selectedProductId) {
+            await loadProductData(selectedProductId);
+        } else {
+            updateUIForNoProduct();
+        }
+    }
+
+    async function loadProductData(productId) {
+        showLoader(true);
+        exportBtn.disabled = true;
+        importBtn.disabled = true;
+        try {
+            const response = await fetch(`/api/product-data/${productId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (result.success) {
+                currentLoadedTableName = result.tableName;
+                originalData = result.data;
+                updateUIForNewProduct();
+                applyFilters();
+                const hasData = originalData.length > 0;
+                exportBtn.disabled = !hasData;
+                importBtn.disabled = false;
+            } else {
+                throw new Error(result.message || "Failed to load data.");
+            }
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+            showToast(error.message, "error");
+            document.getElementById('ratesTableBody').innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas fa-server"></i><p>Could not load data for this product.</p></div></td></tr>`;
+            originalData = [];
+        } finally {
+            showLoader(false);
+        }
+    }
+
+    // --- TABLE RENDERING (ENHANCED) ---
+    function renderTable(data) {
+        const tableHeader = document.getElementById('ratesTableHeader');
+        const tableBody = document.getElementById('ratesTableBody');
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+            const message = originalData.length > 0 ? 'No records match your filter criteria.' : 'No data available for this product.';
+            const icon = originalData.length > 0 ? 'fa-filter' : 'fa-database';
+            tableBody.innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas ${icon}"></i><p>${message}</p></div></td></tr>`;
+            return;
+        }
+
+        const columnsConfig = COLUMN_MAPPINGS[currentLoadedTableName] || {};
+        const derivedInfo = DERIVED_INFO[currentLoadedTableName] || {};
+        const derivedColumnsForProduct = Object.keys(derivedInfo);
+        const columnsToDisplay = Object.keys(columnsConfig);
+        
+        const headerRow = document.createElement('tr');
+        columnsToDisplay.forEach(colKey => {
+            const th = document.createElement('th');
+            th.dataset.colKey = colKey;
+            let headerContent = `<span>${columnsConfig[colKey] || colKey.replace(/_/g, ' ')}</span>`;
+            
+            if (derivedColumnsForProduct.includes(colKey)) {
+                th.classList.add('derived-column');
+                headerContent += `<span class="derived-icon"><i class="fas fa-calculator"></i><div class="tooltip">${derivedInfo[colKey].formula}</div></span>`;
+            }
+            
+            th.innerHTML = headerContent;
+            headerRow.appendChild(th);
+        });
+        const actionsTh = document.createElement('th');
+        actionsTh.textContent = 'Actions';
+        actionsTh.dataset.colKey = 'actions';
+        headerRow.appendChild(actionsTh);
+        tableHeader.appendChild(headerRow);
+
+        data.forEach(rowObject => {
+            const row = document.createElement('tr');
+            columnsToDisplay.forEach(colKey => {
+                const td = document.createElement('td');
+                td.textContent = rowObject[colKey] ?? '–';
+                td.dataset.colKey = colKey;
+                if (derivedColumnsForProduct.includes(colKey)) {
+                    td.classList.add('derived-column');
+                }
+                row.appendChild(td);
+            });
+            const actionsTd = document.createElement('td');
+            const rowId = rowObject[Object.keys(rowObject)[0]]; 
+            actionsTd.innerHTML = `
+            <button class="btn-icon delete" onclick="deleteRate('${rowId}')" title="Delete">
+        <i class="fas fa-trash-alt"></i>
+    </button>`;
+
+            actionsTd.dataset.colKey = 'actions';
+            row.appendChild(actionsTd);
+            tableBody.appendChild(row);
+        });
+
+        applyFloorView();
+    }
+
+    // --- CUSTOM DROPDOWN LOGIC ---
+    function setupCustomDropdown() {
+        dropdownButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('open');
+            dropdownButton.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!floorSelectorContainer.contains(e.target)) {
+                dropdownMenu.classList.remove('open');
+                dropdownButton.classList.remove('open');
+            }
+        });
+    }
+
+    function setupFloorCheckboxes(options) {
+    dropdownMenu.innerHTML = ''; // Clear previous items
+    
+    options.forEach((optionKey, index) => {
+        const li = document.createElement('li');
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = optionKey;
+        if (index === 0) checkbox.checked = true; // Check first option by default
+
+        label.appendChild(checkbox);
+        label.append(` ${optionKey}`);
+        li.appendChild(label);
+        dropdownMenu.appendChild(li);
+    });
+
+    // Add a single event listener to the parent menu
+    dropdownMenu.addEventListener('change', applyFloorView);
+}
+
+    // --- UI STATE MANAGEMENT ---
+    function updateUIForNoProduct() {
+        document.getElementById('dashboardTitle').textContent = 'Admin Dashboard';
+        document.getElementById('ratesTableHeader').innerHTML = '';
+        document.getElementById('ratesTableBody').innerHTML = `<tr><td colspan="100%"><div class="empty-state"><i class="fas fa-cubes"></i><p>Please select a product to view its rate data.</p></div></td></tr>`;
+        originalData = [];
+        currentFilteredData = [];
+        exportBtn.disabled = true;
+        importBtn.disabled = true;
+          templateBtn.disabled = true;
+        floorSelectorContainer.style.display = 'none';
+        clearFilters(false);
+    }
+
+    function updateUIForNewProduct() {
+        const productSelect = document.getElementById('productSelect');
+        const selectedProductName = productSelect.options[productSelect.selectedIndex].text;
+        document.getElementById('dashboardTitle').textContent = `${selectedProductName} Rates`;
+
+        const floorConfigForProduct = FLOOR_CONFIG[currentLoadedTableName];
+        if (floorConfigForProduct) {
+            floorSelectorContainer.style.display = 'block';
+            const options = Object.keys(floorConfigForProduct);
+            setupFloorCheckboxes(options); // Select the first option by default
+        } else {
+            floorSelectorContainer.style.display = 'none';
+        }
+        clearFilters(false);
+        templateBtn.disabled = false;
+    }
+    
+    function applyFilters() {
+        const countryFilter = document.getElementById('filterCountry').value.toLowerCase();
+        const destinationFilter = document.getElementById('filterDestination').value.toLowerCase();
+        currentFilteredData = originalData.filter(row => {
+            const country = String(row.country_name || row.country || '').toLowerCase();
+            const destination = String(row.destination_name || row.destination || '').toLowerCase();
+            return country.includes(countryFilter) && destination.includes(destinationFilter);
+        });
+        renderTable(currentFilteredData);
+    }
+
+   function applyFloorView() {
+    const floorConfigForProduct = FLOOR_CONFIG[currentLoadedTableName];
+    if (!floorConfigForProduct) {
+        document.querySelectorAll('#ratesTable [data-col-key]').forEach(el => el.style.display = '');
+        return;
+    }
+    
+    // Get all columns from the currently checked boxes
+    const visibleFloorColumns = new Set();
+    const checkboxes = dropdownMenu.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(box => {
+        const columnsForFloor = floorConfigForProduct[box.value] || [];
+        columnsForFloor.forEach(col => visibleFloorColumns.add(col));
+    });
+
+    const allPossibleFloorColumns = Object.values(floorConfigForProduct).flat();
+
+    // Show/hide columns based on the set of visible columns
+    document.querySelectorAll('#ratesTable [data-col-key]').forEach(el => {
+        const key = el.dataset.colKey;
+        if (!allPossibleFloorColumns.includes(key) || visibleFloorColumns.has(key)) {
+            el.style.display = '';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+
+    function clearFilters(render = true) {
+        document.getElementById('filterCountry').value = '';
+        document.getElementById('filterDestination').value = '';
+        if (render) {
+            applyFilters();
+        }
+    }
+
+    // --- ACTIONS ---
+    function openFilePicker() { fileInput.click(); }
+
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        showLoader(true);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                if (jsonData.length === 0) throw new Error("The selected Excel sheet is empty.");
+
+                const reverseColumnMap = Object.fromEntries(Object.entries(COLUMN_MAPPINGS[currentLoadedTableName]).map(([k, v]) => [v, k]));
+                const sanitizedData = jsonData.map(row => {
+                    const newRow = {};
+                    for (const key in row) {
+                        const dbColumn = reverseColumnMap[key];
+                        if (dbColumn) newRow[dbColumn] = row[key];
+                    }
+                    return newRow;
+                });
+
+                const productId = document.getElementById('productSelect').value;
+                const response = await fetch(`/api/import/${productId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: sanitizedData })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                if (!result.success) throw new Error(result.message);
+
+                showToast(result.message, 'success');
+                await loadProductData(productId);
+            } catch (error) {
+                console.error('Import failed:', error);
+                showToast(error.message || 'Failed to import file.', 'error');
+            } finally {
+                showLoader(false);
+                fileInput.value = '';
+            }
+        };
+        reader.onerror = () => { showLoader(false); showToast('Failed to read the file.', 'error'); };
+        reader.readAsArrayBuffer(file);
+    }
+function exportToExcel() {
+        const productId = document.getElementById('productSelect').value;
+        if (!productId) {
+            showToast("Please select a product to export.", "error");
+            return;
+        }
+        
+        // Trigger download by navigating to the backend endpoint
+        window.location.href = `/api/export/${productId}`;
+    }
+
+
+
+    function downloadTemplate() {
+        const productId = document.getElementById('productSelect').value;
+        if (!productId) {
+            showToast("Please select a product first.", "error");
+            return;
+        }
+        // Trigger download by navigating to the new backend endpoint
+        window.location.href = `/api/template/${productId}`;
+    }
+
+// --- Inside the main <script> tag in dashboard.html ---
+
+/**
+ * Prompts the admin for confirmation and sends a request to delete a specific rate.
+ * @param {string|number} rateId - The unique identifier for the rate to be deleted.
+ */
+async function deleteRate(rateId) {
+    // Get the currently selected product ID from the dropdown
+    const productId = document.getElementById('productSelect').value;
+    if (!productId) {
+        showToast("Could not identify the current product.", "error");
+        return;
+    }
+
+    // Use a confirmation dialog to prevent accidental deletion
+    if (!confirm('Are you sure you want to permanently delete this rate?')) {
+        return;
+    }
+
+    showLoader(true);
+    try {
+        // The backend route for deletion is already defined in adminRoutes.js
+        const response = await fetch(`/api/rate/${productId}/${rateId}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            // Throw an error to be caught by the catch block
+            throw new Error(result.message || 'Failed to delete the rate.');
+        }
+
+        showToast('Rate deleted successfully.', 'success');
+        
+        // Refresh the table data to reflect the deletion
+        await loadProductData(productId);
+
+    } catch (error) {
+        console.error('Deletion failed:', error);
+        showToast(error.message, 'error');
+    } finally {
+        showLoader(false);
+    }
+}
+
+
+
+
+
+
+    async function logout() {
+        try {
+            const response = await fetch('/api/logout');
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = '/admin.html'; // Redirect to login page
+            } else {
+                showToast('Logout failed.', 'error');
+            }
+        } catch (error) {
+            showToast('Logout request failed.', 'error');
+        }
+    }
+    </script>
+</body>
+</html>

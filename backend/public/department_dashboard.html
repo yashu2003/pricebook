@@ -1,278 +1,447 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Marketing Department Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #f9f9f9;
-      --text: #1a1a1a;
-      --card: #fff;
-      --highlight: #f4f4f4;
-      --border: #dcdcdc;
-      --primary: #007cc3;
-      --accent: #facc15;
-      --export: #16a34a;
-      --dark-bg: #1e2530;
-      --dark-text: #e4e6eb;
-      --dark-card: #2a3242;
-      --dark-border: #3c4453;
-      --highlight-dark: #353f52;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceBook Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Fully updated styles with dark mode support */
+        :root {
+            --bg: #f4f7fa; --text-primary: #1a202c; --text-secondary: #4a5568; --card-bg: #ffffff; --border-color: #e2e8f0; --primary-blue: #0056b3; --accent-green: #2f855a  ;--accent-amber-bg: #fef3c7;
+    --accent-amber-text: #92400E;
+    --accent-amber-border: #fde68a;
 
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      transition: all 0.3s ease;
-    }
+        }
+        .dark-mode {
+            --bg: #1a202c; --text-primary: #e2e8f0; --text-secondary: #a0aec0; --card-bg: #2d3748; --border-color: #4a5568; --primary-blue: #63b3ed; --accent-green: #68d391;
+        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        .page-wrapper { padding: 1.5rem 2rem; }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); transition: background-color 0.3s; }
+        .controls-card { padding: 1.5rem; margin-bottom: 2rem; }
+        .table-card { overflow: hidden; }
+        header { background: var(--card-bg); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 10px; }
+        .logo i { font-size: 1.8rem; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .header-actions button { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+        .header-actions button:hover { background: var(--bg); color: var(--primary-blue); }
+        .page-title { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 1.5rem; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; align-items: flex-end; }
+        .control-item label { font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; display: block; }
+        .control-item input, .control-item select { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg); color: var(--text-primary); font-size: 1rem; }
+        .actions-bar { border-top: 1px solid var(--border-color); margin-top: 1.5rem; padding-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+        .btn:disabled { cursor: not-allowed; background-color: #ccc !important; opacity: 0.6; }
+        .btn-secondary { background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-export { background-color: var(--accent-green); color: white; }
+        .table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
+th, td { 
+    text-align: left; 
+    padding: 8px 10px; /* Adjusted padding */
+    font-size: 13px; /* Smaller, cleaner font */
+    border-bottom: 1px solid var(--border-color); 
+    white-space: nowrap; 
+    transition: background-color 0.2s; 
+}
+th { 
+    background: var(--bg); 
+    color: var(--text-secondary); 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+    position: sticky; /* This makes the header stay at the top when scrolling */
+    top: 0; 
+    z-index: 1; 
+}
+tr:last-child td { border-bottom: none; }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
 
-    .dark-mode {
-      --bg: var(--dark-bg);
-      --text: var(--dark-text);
-      --card: var(--dark-card);
-      --border: var(--dark-border);
-      --highlight: var(--highlight-dark);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 30px;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-    }
-
-    header h1 {
-      font-size: 22px;
-      font-weight: 600;
-    }
-
-    .theme-toggle {
-      border: none;
-      background: none;
-      cursor: pointer;
-      color: var(--primary);
-      font-size: 16px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-
-    .filters {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      background: var(--card);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .filter-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .filter-item label {
-      font-size: 13px;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .filter-item select {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--highlight);
-      font-size: 14px;
-      appearance: none;
-    }
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      padding: 16px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .btn-export, .btn-product {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .btn-export {
-      background: var(--export);
-      color: white;
-    }
-
-    .btn-export:hover {
-      background: #15803d;
-    }
-
-    .btn-product {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-product:hover {
-      background: #005a99;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--card);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      background: var(--highlight);
-      font-weight: 600;
-    }
-
-    @media (max-width: 768px) {
-      .actions {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-      }
-    }
-  </style>
+        th.derived-column {
+    background-color: var(--accent-amber-bg);
+    color: var(--accent-amber-text);
+    border-bottom: 1px solid var(--accent-amber-border);
+    font-weight: 700;
+}
+    </style>
 </head>
 <body>
+    <header>
+        <div class="logo"><i class="fas fa-book"></i> PriceBook Dashboard</div>
+        <div class="header-actions">
+            <button onclick="toggleTheme()"><i class="fas fa-moon"></i><span>Theme</span></button>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </header>
 
-<header>
-  <h1>Marketing Department Dashboard</h1>
-  <button class="theme-toggle" onclick="toggleTheme()">
-    <i class="fas fa-moon"></i> Toggle Theme
-  </button>
+    <div class="page-wrapper">
+        <h1 class="page-title">Department Dashboard</h1>
+        
+        <div class="card controls-card">
+            <div class="filters-grid">
+                <div class="control-item">
+                    <label for="productSelect">Select Product</label>
+                    <select id="productSelect" onchange="productSelected()"></select>
+                </div>
+                <div class="control-item">
+                    <label for="filterCountry">Filter by Country</label>
+                    <input type="text" placeholder="e.g., India" id="filterCountry">
+                </div>
+                <div class="control-item">
+                    <label for="filterDestination">Filter by Destination</label>
+                    <input type="text" placeholder="e.g., Mumbai" id="filterDestination">
+                </div>
+<div id="dynamicControlsContainer" style="display: none;">
 
-  
-</header>
+        <div class="control-item">
+            <label for="floorPriceSelect">Select Floor Price</label>
+            <select id="floorPriceSelect" onchange="updateRatePerMin()"></select>
+        </div>
+        <div class="control-item">
+            <label for="currencySelect">Select Currency</label>
+            <select id="currencySelect" onchange="updateRatePerMin()"></select>
+        </div>
+     </div>
+            </div>
+            <div class="actions-bar">
+                <button class="btn btn-secondary" onclick="clearFilters()"><i class="fas fa-times"></i> Clear Filters</button>
+                <button class="btn btn-export" id="exportBtn" onclick="exportDepartmentData()" disabled><i class="fas fa-file-excel"></i> Export Current View</button>
+            </div>
+        </div>
 
-<div class="container">
-
-  <!-- Filters -->
-  <div class="filters">
-    <div class="filter-item">
-      <label>1 - SERVICE</label>
-      <select><option>GlobalRapide Cloud Voice (GSIP)</option></select>
+        <div class="card table-card">
+            <div class="table-container">
+                <table id="ratesTable">
+                    <thead id="ratesTableHeader"></thead>
+                    <tbody id="ratesTableBody"></tbody>
+                </table>
+                <div id="emptyState" class="empty-state">Please select a product to view data.</div>
+            </div>
+        </div>
     </div>
-    <div class="filter-item">
-      <label>2 - SERVICE TYPE</label>
-      <select><option>Global Inbound Off-net Voice Service</option></select>
-    </div>
-    <div class="filter-item">
-      <label>3 - NUMBER TYPE</label>
-      <select><option>International Toll Free Service</option></select>
-    </div>
-    <div class="filter-item">
-      <label>4 - ACCESS TYPE</label>
-      <select><option>Dedicated</option></select>
-    </div>
-    <div class="filter-item">
-      <label>5 - CURRENCY</label>
-      <select><option>USD</option></select>
-    </div>
-    <div class="filter-item">
-      <label>6 - Rate Deck</label>
-      <select style="background: var(--accent);"><option>CDA Floor</option></select>
-    </div>
-  </div>
+    <script>
+// --- STATE & DOM ELEMENTS ---
+// New state variables to hold our data bundle
+let originalData = [];
+let currentFilteredData = [];
+let tableColumns = {};
+let fxRates = [];
+let allowedFloors = [];
+let floorPriceNames = {}; // Add this new variable
+let hasDynamicRates = false;
 
-  <!-- Actions -->
-  <div class="actions">
-    <button class="btn-product"><i class="fas fa-box"></i> Choose Product</button>
-    <button class="btn-export" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Export</button>
-  </div>
+const exportBtn = document.getElementById('exportBtn');
+const tableHeader = document.getElementById('ratesTableHeader');
+const tableBody = document.getElementById('ratesTableBody');
+const emptyStateDiv = document.getElementById('emptyState');
+const tableElement = document.getElementById('ratesTable');
 
-  <!-- Table -->
-  <table>
-    <thead>
-      <tr>
-        <th>Currency</th>
-        <th>LNS-EV Code</th>
-        <th>Origin Country</th>
-        <th>Termination Country 1</th>
-        <th>Termination Country 2</th>
-        <th>Rate</th>
-        <th>Implementation Fee / NRC</th>
-        <th>Monthly Recurring Fee / MRC</th>
-        <th>Comments</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>USD</td>
-        <td>LN001</td>
-        <td>India</td>
-        <td>USA</td>
-        <td>Canada</td>
-        <td>$0.15</td>
-        <td>$100</td>
-        <td>$20</td>
-        <td>Standard Plan</td>
-      </tr>
-    </tbody>
-  </table>
-
-</div>
-
-<script>
-  function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const icon = document.querySelector('.theme-toggle i');
-    icon.classList.toggle('fa-moon');
-    icon.classList.toggle('fa-sun');
-  }
-
-
-  async function logout() {
-    try {
-      const res = await fetch('/api/logout');
-      const data = await res.json();
-      if (data.success) {
-        window.location.href = '/admin'; // redirect to login page
-      } else {
-        alert('Logout failed!');
-      }
-    } catch (err) {
-      alert('Logout request failed.');
-      console.error(err);
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        const themeIcon = document.querySelector('.header-actions button i.fa-moon');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
     }
-  }
-  
-  function exportExcel() {
-    alert("Export logic goes here");
-    // Integrate export logic later
-  }
-</script>
+    loadProducts();
+    document.getElementById('filterCountry').addEventListener('input', applyFilters);
+    document.getElementById('filterDestination').addEventListener('input', applyFilters);
+    updateTableVisibility();
+});
 
+// --- THEME ---
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const themeIcon = document.querySelector('.header-actions button i');
+    if (themeIcon) {
+        themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+}
+
+// --- DATA LOADING & PROCESSING ---
+async function loadProducts() {
+    try {
+        const productSelect = document.getElementById('productSelect');
+        const response = await fetch('/api/department/products');
+        const result = await response.json();
+        if (result.success) {
+            productSelect.innerHTML = '<option value="">-- Select a Product --</option>';
+            result.data.forEach(p => productSelect.add(new Option(p.product_name, p.product_id)));
+        } else {
+            handleAuthError();
+        }
+    } catch (error) {
+        console.error("Failed to load products", error);
+    }
+}
+
+// MODIFIED: This function now handles the new data bundle
+async function productSelected() {
+    const productId = document.getElementById('productSelect').value;
+    exportBtn.disabled = !productId;
+    updateTableVisibility(true);
+
+    if (!productId) {
+        originalData = [];
+        applyFilters();
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/department/product-data/${productId}`);
+        const result = await response.json();
+        if (result.success) {
+            // Unpack the data bundle
+            const bundle = result.bundle;
+            originalData = bundle.data;
+           tableColumns = bundle.tableColumns;
+floorPriceNames = bundle.floorPriceNames;
+fxRates = bundle.fxRates;
+allowedFloors = bundle.allowedFloors;
+
+            // Trigger the UI updates
+            // Store the flag from the bundle
+hasDynamicRates = bundle.hasDynamicRates;
+
+// Trigger the UI updates
+applyFilters(); // This will now pass the flag to renderTable
+
+// Conditionally show controls and run dynamic rate functions
+const dynamicControls = document.getElementById('dynamicControlsContainer');
+if (hasDynamicRates) {
+    dynamicControls.style.display = 'contents'; // Use 'contents' to respect the grid layout
+    populateDropdowns();
+    updateRatePerMin();
+} else {
+    dynamicControls.style.display = 'none';
+}
+
+        } else {
+            handleAuthError();
+        }
+    } catch (error) {
+        console.error("Failed to load data", error);
+        originalData = [];
+        applyFilters();
+    }
+}
+
+// --- TABLE RENDERING & UI ---
+// MODIFIED: This function now adds the "Rate/Min" column
+function renderTable(data, hasDynamicRates) {
+    tableHeader.innerHTML = '';
+    tableBody.innerHTML = '';
+
+    if (Object.keys(tableColumns).length === 0) {
+        updateTableVisibility();
+        return;
+    }
+
+    const headerRow = document.createElement('tr');
+    // This loop creates the base columns that are always visible
+    for (const key in tableColumns) {
+        const th = document.createElement('th');
+        th.textContent = tableColumns[key];
+        headerRow.appendChild(th);
+    }
+
+    // This block conditionally adds the headers for dynamic rates
+    if (hasDynamicRates) {
+          const currencyTh = document.createElement('th');
+        currencyTh.textContent = 'Currency';
+              currencyTh.className = 'derived-column';   
+        headerRow.appendChild(currencyTh);
+
+        const rateTh = document.createElement('th');
+            rateTh.className = 'derived-column'; 
+        rateTh.textContent = 'Rate/Min';
+        headerRow.appendChild(rateTh);
+
+      
+    }
+
+    tableHeader.appendChild(headerRow);
+
+    if (data.length === 0) {
+        // Calculate colspan dynamically based on whether extra columns were added
+        const colCount = Object.keys(tableColumns).length + (hasDynamicRates ? 2 : 0);
+        const message = originalData.length > 0 ? 'No records match your filter criteria.' : 'No data available for this product.';
+        tableBody.innerHTML = `<tr><td colspan="${colCount}" class="empty-state">${message}</td></tr>`;
+    } else {
+        data.forEach(rowObject => {
+            const row = document.createElement('tr');
+            // This loop creates the cells for the base columns
+            for (const key in tableColumns) {
+                const td = document.createElement('td');
+                td.textContent = rowObject[key] ?? '–';
+                row.appendChild(td);
+            }
+
+            // This block conditionally adds the cells for dynamic rates
+            if (hasDynamicRates) {
+
+                
+                const currencyTd = document.createElement('td');
+                currencyTd.className = 'currency-cell derived-column';
+
+                row.appendChild(currencyTd);
+
+                const rateTd = document.createElement('td');
+                rateTd.className = 'rate-min-cell derived-column';
+                row.appendChild(rateTd);
+
+            }
+            
+            tableBody.appendChild(row);
+        });
+    }
+    updateTableVisibility();
+}
+function updateTableVisibility(isLoading = false) {
+    // ... this function remains unchanged
+    const hasProductSelected = document.getElementById('productSelect').value;
+
+    if (isLoading) {
+        tableElement.style.display = 'none';
+        emptyStateDiv.style.display = 'block';
+        emptyStateDiv.textContent = 'Loading...';
+        return;
+    }
+
+    if (hasProductSelected) {
+        tableElement.style.display = '';
+        emptyStateDiv.style.display = 'none';
+    } else {
+        tableElement.style.display = 'none';
+        emptyStateDiv.style.display = 'block';
+        emptyStateDiv.textContent = 'Please select a product to view data.';
+    }
+}
+
+function applyFilters() {
+    const countryFilter = document.getElementById('filterCountry').value.toLowerCase();
+    const destinationFilter = document.getElementById('filterDestination').value.toLowerCase();
+
+    // Dynamically find the relevant column keys for the current product
+    const columnKeys = Object.keys(originalData[0] || {});
+    const countryKey = columnKeys.find(key => key.includes('country'));
+    const destinationKey = columnKeys.find(key => key.includes('destination'));
+
+    currentFilteredData = originalData.filter(row => {
+        // If a country key exists for this product, filter by it. Otherwise, it's a match.
+        const countryMatch = countryKey ? 
+            String(row[countryKey] || '').toLowerCase().includes(countryFilter) : 
+            true;
+        
+        // If a destination key exists for this product, filter by it. Otherwise, it's a match.
+        const destinationMatch = destinationKey ? 
+            String(row[destinationKey] || '').toLowerCase().includes(destinationFilter) : 
+            true;
+
+        return countryMatch && destinationMatch;
+    });
+
+    renderTable(currentFilteredData, hasDynamicRates);
+
+    if (hasDynamicRates) {
+        updateRatePerMin(); // Only update rates if the product has them
+    }
+}
+
+function clearFilters() {
+    document.getElementById('filterCountry').value = '';
+    document.getElementById('filterDestination').value = '';
+    applyFilters();
+}
+
+function exportDepartmentData() {
+    const productId = document.getElementById('productSelect').value;
+    if (!productId) return;
+    window.location.href = `/api/department/export/${productId}`;
+}
+
+// --- AUTHENTICATION ---
+function handleAuthError() {
+    window.location.href = '/login';
+}
+
+async function logout() {
+    await fetch('/api/department/logout');
+    window.location.href = '/login';
+}
+
+// =========== NEW FUNCTIONS START ===========
+
+// NEW: This function populates our dropdowns based on the data from the API
+function populateDropdowns() {
+    const floorSelect = document.getElementById('floorPriceSelect');
+    const currencySelect = document.getElementById('currencySelect');
+
+    // Clear previous options
+    floorSelect.innerHTML = '';
+    currencySelect.innerHTML = '';
+
+    // Populate Floor Price dropdown with allowed floors
+    allowedFloors.forEach(floorKey => {
+        // Get user-friendly name from the full column list
+      const floorName = floorPriceNames[floorKey] || floorKey;
+        floorSelect.add(new Option(floorName, floorKey));
+    });
+
+    // Populate Currency dropdown
+    fxRates.forEach(rate => {
+        const option = new Option(rate.currency_code, rate.rate_to_usd);
+        currencySelect.add(option);
+        if (rate.currency_code === 'USD') {
+            option.selected = true; // Default to USD
+        }
+    });
+}
+
+// NEW: This is the core function that calculates and updates the UI
+function updateRatePerMin() {
+    const floorSelect = document.getElementById('floorPriceSelect');
+    const currencySelect = document.getElementById('currencySelect');
+
+    if (!floorSelect.value || !currencySelect.value) return; 
+
+    const selectedFloorKey = floorSelect.value;
+    const selectedFxRate = parseFloat(currencySelect.value);
+    // Get the text of the selected currency (e.g., "USD", "INR")
+    const selectedCurrencyCode = currencySelect.options[currencySelect.selectedIndex].text;
+
+    const rows = document.querySelectorAll('#ratesTableBody tr');
+
+    rows.forEach((row, index) => {
+        if (row.querySelector('.empty-state')) return;
+
+        const dataRow = currentFilteredData[index];
+        if (!dataRow) return;
+
+        const rateCell = row.querySelector('.rate-min-cell');
+        // Find the currency cell in the current row
+        const currencyCell = row.querySelector('.currency-cell');
+        const basePrice = parseFloat(dataRow[selectedFloorKey]);
+
+        if (!isNaN(basePrice) && !isNaN(selectedFxRate)) {
+            const finalRate = basePrice * selectedFxRate;
+            const roundedUpRate = Math.ceil(finalRate * 10000) / 10000;
+            rateCell.textContent = roundedUpRate.toFixed(4);
+            // Set the currency code in the currency cell
+            if (currencyCell) currencyCell.textContent = selectedCurrencyCode;
+        } else {
+            rateCell.textContent = 'N/A';
+            if (currencyCell) currencyCell.textContent = 'N/A';
+        }
+    });
+}
+// =========== NEW FUNCTIONS END ===========
+
+</script>
 </body>
 </html>

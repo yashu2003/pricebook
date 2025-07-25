@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 5000;
 require('dotenv').config();
 
 const adminRoutes = require('./routes/adminRoutes');
+const departmentRoutes = require('./routes/departmentRoutes');
 app.use(express.json());
 
 app.use(session({
@@ -22,6 +23,7 @@ app.use(session({
 }));
 
 app.use('/api', adminRoutes);
+app.use('/api/department', departmentRoutes);
 
 
 
@@ -56,6 +58,14 @@ app.get('/dashboard', (req, res) => {
 app.get('*', (req, res) => {
   res.status(404).send('Page not found');
 });
+
+app.get('/department_dashboard', (req, res) => {
+  if (!req.session.isDepartment || !req.session.department) {
+    return res.redirect('/login');
+  }
+  res.sendFile(path.join(__dirname, 'public/department_dashboard.html'));
+});
+
 
 
 
